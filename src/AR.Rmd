@@ -158,6 +158,27 @@ lines(seq((N+1),Ntot,1),q2_pred,col="orange",lwd = 1.5)
 ```
 
 ```{r}
+help(arima)
+AR_gdp <- arima(data$GDP [1:275], order = c(1,0,0))
+print(AR_gdp)
+AR_gdp_fit <- data$GDP [1:275] - residuals(AR_gdp)
+plot(tt, yp, type="p", pch="*", col="blue",)
+points(AR_gdp_fit, type = "l", col = 2, lty = 2)
+
+alpha.mcmc.mat=as.matrix(outputmcmcAR_GDP$samples[,c("alpha")], iters = FALSE)
+yalpha=kdensity(alpha.mcmc.mat)
+plot(yalpha,main="posterior of alpha")
+abline(v=AR_gdp$coef[1],col="green")
+abline(v=outputmcmcAR_GDP$mean$alpha,col="blue")
+
+predict_gdp <- predict(AR_gdp, n.ahead=30)
+predict_gdp$pred
+ts.plot(data$GDP_PC1)
+points(AR_gdp_fit, type = "l", col = 2, lty = 2)
+points(predict_gdp$pred, type = "l", col = 'orange', lty = 2)
+```
+
+```{r}
 t  = seq(1,Ntot)
 tt = seq(1,N)
 
@@ -189,4 +210,25 @@ lines(tt, q2, type="l", col="blue", lwd = 1.5)
 points(seq((N+1),Ntot,1),pch="*",yp_pred,col="orange")
 lines(seq((N+1),Ntot,1),q1_pred,col="orange",lwd = 1.5)
 lines(seq((N+1),Ntot,1),q2_pred,col="orange",lwd = 1.5)
+```
+
+```{r}
+help(arima)
+AR_infl <- arima(data$CPIAUCSL_PC1 [1:275], order = c(1,0,0))
+print(AR_infl)
+AR_infl_fit <- data$CPIAUCSL_PC1 [1:275] - residuals(AR_infl)
+plot(tt, yp, type="p", pch="*", col="blue",)
+points(AR_infl_fit, type = "l", col = 2, lty = 2)
+
+alpha.mcmc.mat=as.matrix(outputmcmcAR_CPIAUCSL$samples[,c("alpha")], iters = FALSE)
+yalpha=kdensity(alpha.mcmc.mat)
+plot(yalpha,main="posterior of alpha")
+abline(v=AR_infl$coef[1],col="green")
+abline(v=outputmcmcAR_CPIAUCSL$mean$alpha,col="blue")
+
+predict_infl <- predict(AR_infl, n.ahead=30)
+predict_infl$pred
+ts.plot(data$CPIAUCSL_PC1)
+points(AR_infl_fit, type = "l", col = 2, lty = 2)
+points(predict_infl$pred, type = "l", col = 'orange', lty = 2)
 ```
