@@ -72,7 +72,7 @@ line_data_GDP <- list("N" = N,
                       "Npred" = Npred,
                       "Y" = data_subsample$GDP_PC1)
 
-outputmcmcAR_GDP <- jags(model.file = textConnection(modelARMA.string),
+outputmcmcARMA_GDP <- jags(model.file = textConnection(modelARMA.string),
                          data = line_data_GDP,
                          parameters.to.save= c("alpha", "theta", "sigma2", "m0", "Yp", "ypOut"), 
                          n.adapt=1000, n.iter=10000, n.chains = 3, n.burnin = 1000)
@@ -81,34 +81,34 @@ line_data_CPIAUCSL <- list("N" = N,
                            "Npred" = Npred,
                            "Y" = data_subsample$CPIAUCSL_PC1)
 
-outputmcmcAR_CPIAUCSL <- jags(model.file = textConnection(modelARMA.string),
+outputmcmcARMA_CPIAUCSL <- jags(model.file = textConnection(modelARMA.string),
                               data = line_data_CPIAUCSL,
                               parameters.to.save= c("alpha", "theta", "sigma2", "m0", "Yp", "ypOut"), 
                               n.adapt=1000, n.iter=10000, n.chains = 3, n.burnin = 1000)
 ```
 
 ```{r}
-mcmc_trace(outputmcmcAR_GDP$samples, pars = c("alpha"))
-mcmc_areas(outputmcmcAR_GDP$samples, pars = c("alpha"),  prob = 0.95)
-mcmc_trace(outputmcmcAR_GDP$samples, pars = c("theta"))
-mcmc_areas(outputmcmcAR_GDP$samples, pars = c("theta"),  prob = 0.95)
-mcmc_trace(outputmcmcAR_GDP$samples, pars = c("sigma2"))
-mcmc_areas(outputmcmcAR_GDP$samples, pars = c("sigma2"),  prob = 0.95)
+mcmc_trace(outputmcmcARMA_GDP$samples, pars = c("alpha"))
+mcmc_areas(outputmcmcARMA_GDP$samples, pars = c("alpha"),  prob = 0.95)
+mcmc_trace(outputmcmcARMA_GDP$samples, pars = c("theta"))
+mcmc_areas(outputmcmcARMA_GDP$samples, pars = c("theta"),  prob = 0.95)
+mcmc_trace(outputmcmcARMA_GDP$samples, pars = c("sigma2"))
+mcmc_areas(outputmcmcARMA_GDP$samples, pars = c("sigma2"),  prob = 0.95)
 
-autocorr.plot(outputmcmcAR_GDP$samples[,c("alpha")],main="alpha GDP")
-autocorr.plot(outputmcmcAR_GDP$samples[,c("theta")],main="theta GDP")
-autocorr.plot(outputmcmcAR_GDP$samples[,c("sigma2")],main="sigma2 GDP")
+autocorr.plot(outputmcmcARMA_GDP$samples[,c("alpha")],main="alpha GDP")
+autocorr.plot(outputmcmcARMA_GDP$samples[,c("theta")],main="theta GDP")
+autocorr.plot(outputmcmcARMA_GDP$samples[,c("sigma2")],main="sigma2 GDP")
 
-mcmc_trace(outputmcmcAR_CPIAUCSL$samples, pars = c("alpha"))
-mcmc_areas(outputmcmcAR_CPIAUCSL$samples, pars = c("alpha"),  prob = 0.95)
-mcmc_trace(outputmcmcAR_CPIAUCSL$samples, pars = c("theta"))
-mcmc_areas(outputmcmcAR_CPIAUCSL$samples, pars = c("theta"),  prob = 0.95)
-mcmc_trace(outputmcmcAR_CPIAUCSL$samples, pars = c("sigma2"))
-mcmc_areas(outputmcmcAR_CPIAUCSL$samples, pars = c("sigma2"),  prob = 0.95)
+mcmc_trace(outputmcmcARMA_CPIAUCSL$samples, pars = c("alpha"))
+mcmc_areas(outputmcmcARMA_CPIAUCSL$samples, pars = c("alpha"),  prob = 0.95)
+mcmc_trace(outputmcmcARMA_CPIAUCSL$samples, pars = c("theta"))
+mcmc_areas(outputmcmcARMA_CPIAUCSL$samples, pars = c("theta"),  prob = 0.95)
+mcmc_trace(outputmcmcARMA_CPIAUCSL$samples, pars = c("sigma2"))
+mcmc_areas(outputmcmcARMA_CPIAUCSL$samples, pars = c("sigma2"),  prob = 0.95)
 
-autocorr.plot(outputmcmcAR_CPIAUCSL$samples[,c("alpha")],main="alpha CPIAUCSL")
-autocorr.plot(outputmcmcAR_CPIAUCSL$samples[,c("theta")],main="theta CPIAUCSL")
-autocorr.plot(outputmcmcAR_CPIAUCSL$samples[,c("sigma2")],main="sigma2 CPIAUCSL")
+autocorr.plot(outputmcmcARMA_CPIAUCSL$samples[,c("alpha")],main="alpha CPIAUCSL")
+autocorr.plot(outputmcmcARMA_CPIAUCSL$samples[,c("theta")],main="theta CPIAUCSL")
+autocorr.plot(outputmcmcARMA_CPIAUCSL$samples[,c("sigma2")],main="sigma2 CPIAUCSL")
 ```
 
 ```{r}
@@ -116,9 +116,9 @@ t  = seq(1,Ntot)
 tt = seq(1,N)
 
 #
-yp=outputmcmcAR_GDP$mean$Yp
-q1=outputmcmcAR_GDP$q2.5$Yp
-q2=outputmcmcAR_GDP$q97.5$Yp
+yp=outputmcmcARMA_GDP$mean$Yp
+q1=outputmcmcARMA_GDP$q2.5$Yp
+q2=outputmcmcARMA_GDP$q97.5$Yp
 
 #
 plot(t, data$GDP_PC1, col="red",ylab="mu_t",
@@ -129,9 +129,9 @@ lines(tt, q1, type="l",col="blue", lwd = 1.5)
 lines(tt, q2, type="l",col="blue", lwd = 1.5)
 
 #
-yp_pred=outputmcmcAR_GDP$mean$ypOut
-q1_pred=outputmcmcAR_GDP$q2.5$ypOut
-q2_pred=outputmcmcAR_GDP$q97.5$ypOut
+yp_pred=outputmcmcARMA_GDP$mean$ypOut
+q1_pred=outputmcmcARMA_GDP$q2.5$ypOut
+q2_pred=outputmcmcARMA_GDP$q97.5$ypOut
 
 #
 plot(t, data$GDP_PC1, col="red", ylab="mu_t", ylim=c(min(q1_pred),max(q2_pred)),
@@ -150,9 +150,9 @@ t  = seq(1,Ntot)
 tt = seq(1,N)
 
 #
-yp=outputmcmcAR_CPIAUCSL$mean$Yp
-q1=outputmcmcAR_CPIAUCSL$q2.5$Yp
-q2=outputmcmcAR_CPIAUCSL$q97.5$Yp
+yp=outputmcmcARMA_CPIAUCSL$mean$Yp
+q1=outputmcmcARMA_CPIAUCSL$q2.5$Yp
+q2=outputmcmcARMA_CPIAUCSL$q97.5$Yp
 
 #
 plot(t, data$CPIAUCSL_PC1, col="red",ylab="mu_t",
@@ -163,9 +163,9 @@ lines(tt, q1, type="l",col="blue", lwd = 1.5)
 lines(tt, q2, type="l",col="blue", lwd = 1.5)
 
 #
-yp_pred=outputmcmcAR_CPIAUCSL$mean$ypOut
-q1_pred=outputmcmcAR_CPIAUCSL$q2.5$ypOut
-q2_pred=outputmcmcAR_CPIAUCSL$q97.5$ypOut
+yp_pred=outputmcmcARMA_CPIAUCSL$mean$ypOut
+q1_pred=outputmcmcARMA_CPIAUCSL$q2.5$ypOut
+q2_pred=outputmcmcARMA_CPIAUCSL$q97.5$ypOut
 
 #
 plot(t, data$CPIAUCSL_PC1, col="red", ylab="mu_t", ylim=c(min(q1_pred),max(q2_pred)),
