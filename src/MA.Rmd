@@ -89,7 +89,7 @@ line_data_GDP <- list("N" = N,
                       "Npred" = Npred,
                       "Y" = data_subsample$GDP_PC1)
 
-outputmcmcAR_GDP <- jags(model.file = textConnection(modelMA.string),
+outputmcmcMA_GDP <- jags(model.file = textConnection(modelMA.string),
                          data = line_data_GDP,
                          parameters.to.save= c("theta", "sigma2", "eps", "m0", "Yp", "ypOut"), 
                          n.adapt=1000, n.iter=10000, n.chains = 3, n.burnin = 3000)
@@ -98,7 +98,7 @@ line_data_CPIAUCSL <- list("N" = N,
                            "Npred" = Npred,
                            "Y" = data_subsample$CPIAUCSL_PC1)
 
-outputmcmcAR_CPIAUCSL <- jags(model.file = textConnection(modelMA.string),
+outputmcmcMA_CPIAUCSL <- jags(model.file = textConnection(modelMA.string),
                               data = line_data_CPIAUCSL,
                               parameters.to.save= c("theta", "sigma2", "eps", "m0", "Yp", "ypOut"), 
                               n.adapt=1000, n.iter=10000, n.chains = 3, n.burnin = 3000)
@@ -107,21 +107,21 @@ outputmcmcAR_CPIAUCSL <- jags(model.file = textConnection(modelMA.string),
 ```
 
 ```{r}
-mcmc_trace(outputmcmcAR_GDP$samples, pars = c("theta"))
-mcmc_areas(outputmcmcAR_GDP$samples, pars = c("theta"),  prob = 0.95)
-mcmc_trace(outputmcmcAR_GDP$samples, pars = c("sigma2"))
-mcmc_areas(outputmcmcAR_GDP$samples, pars = c("sigma2"),  prob = 0.95)
+mcmc_trace(outputmcmcMA_GDP$samples, pars = c("theta"))
+mcmc_areas(outputmcmcMA_GDP$samples, pars = c("theta"),  prob = 0.95)
+mcmc_trace(outputmcmcMA_GDP$samples, pars = c("sigma2"))
+mcmc_areas(outputmcmcMA_GDP$samples, pars = c("sigma2"),  prob = 0.95)
 
-autocorr.plot(outputmcmcAR_GDP$samples[,c("theta")],main="theta GDP")
-autocorr.plot(outputmcmcAR_GDP$samples[,c("sigma2")],main="sigma2 GDP")
+autocorr.plot(outputmcmcMA_GDP$samples[,c("theta")],main="theta GDP")
+autocorr.plot(outputmcmcMA_GDP$samples[,c("sigma2")],main="sigma2 GDP")
 
-mcmc_trace(outputmcmcAR_CPIAUCSL$samples, pars = c("theta"))
-mcmc_areas(outputmcmcAR_CPIAUCSL$samples, pars = c("theta"),  prob = 0.95)
-mcmc_trace(outputmcmcAR_CPIAUCSL$samples, pars = c("sigma2"))
-mcmc_areas(outputmcmcAR_CPIAUCSL$samples, pars = c("sigma2"),  prob = 0.95)
+mcmc_trace(outputmcmcMA_CPIAUCSL$samples, pars = c("theta"))
+mcmc_areas(outputmcmcMA_CPIAUCSL$samples, pars = c("theta"),  prob = 0.95)
+mcmc_trace(outputmcmcMA_CPIAUCSL$samples, pars = c("sigma2"))
+mcmc_areas(outputmcmcMA_CPIAUCSL$samples, pars = c("sigma2"),  prob = 0.95)
 
-autocorr.plot(outputmcmcAR_CPIAUCSL$samples[,c("theta")],main="theta CPIAUCSL")
-autocorr.plot(outputmcmcAR_CPIAUCSL$samples[,c("sigma2")],main="sigma2 CPIAUCSL")
+autocorr.plot(outputmcmcMA_CPIAUCSL$samples[,c("theta")],main="theta CPIAUCSL")
+autocorr.plot(outputmcmcMA_CPIAUCSL$samples[,c("sigma2")],main="sigma2 CPIAUCSL")
 ```
 
 ```{r}
@@ -129,9 +129,9 @@ t  = seq(1,Ntot)
 tt = seq(1,N)
 
 #
-yp=outputmcmcAR_GDP$mean$Yp
-q1=outputmcmcAR_GDP$q2.5$Yp
-q2=outputmcmcAR_GDP$q97.5$Yp
+yp=outputmcmcMA_GDP$mean$Yp
+q1=outputmcmcMA_GDP$q2.5$Yp
+q2=outputmcmcMA_GDP$q97.5$Yp
 
 #
 plot(t, data$GDP_PC1, col="red",ylab="mu_t",
@@ -141,9 +141,9 @@ points(tt, yp,pch="*", col="blue")
 lines(tt, q1, type="l",col="blue", lwd = 1.5)
 lines(tt, q2, type="l",col="blue", lwd = 1.5)
 #
-yp_pred=outputmcmcAR_GDP$mean$ypOut
-q1_pred=outputmcmcAR_GDP$q2.5$ypOut
-q2_pred=outputmcmcAR_GDP$q97.5$ypOut
+yp_pred=outputmcmcMA_GDP$mean$ypOut
+q1_pred=outputmcmcMA_GDP$q2.5$ypOut
+q2_pred=outputmcmcMA_GDP$q97.5$ypOut
 
 #
 plot(t, data$GDP_PC1, col="red", ylab="mu_t",
@@ -166,11 +166,11 @@ MA_gdp_fit <- data$GDP_PC1 [1:275] - residuals(MA_gdp)
 plot(tt, yp, type="p", pch="*", col="blue",)
 points(MA_gdp_fit, type = "l", col = 2, lty = 2)
 
-theta.mcmc.mat=as.matrix(outputmcmcAR_GDP$samples[,c("theta")], iters = FALSE)
+theta.mcmc.mat=as.matrix(outputmcmcMA_GDP$samples[,c("theta")], iters = FALSE)
 ytheta=kdensity(theta.mcmc.mat)
 plot(ytheta,main="posterior of theta")
 abline(v=MA_gdp$coef[1],col="green")
-abline(v=outputmcmcAR_GDP$mean$theta,col="blue")
+abline(v=outputmcmcMA_GDP$mean$theta,col="blue")
 
 predict_gdp <- predict(MA_gdp, n.ahead=30)
 predict_gdp$pred
@@ -186,9 +186,9 @@ t  = seq(1,Ntot)
 tt = seq(1,N)
 
 #
-yp=outputmcmcAR_CPIAUCSL$mean$Yp
-q1=outputmcmcAR_CPIAUCSL$q2.5$Yp
-q2=outputmcmcAR_CPIAUCSL$q97.5$Yp
+yp=outputmcmcMA_CPIAUCSL$mean$Yp
+q1=outputmcmcMA_CPIAUCSL$q2.5$Yp
+q2=outputmcmcMA_CPIAUCSL$q97.5$Yp
 
 #
 plot(t, data$CPIAUCSL_PC1, col="red",ylab="mu_t",
@@ -199,9 +199,9 @@ lines(tt, q1, type="l",col="blue", lwd = 1.5)
 lines(tt, q2, type="l",col="blue", lwd = 1.5)
 
 #
-yp_pred=outputmcmcAR_CPIAUCSL$mean$ypOut
-q1_pred=outputmcmcAR_CPIAUCSL$q2.5$ypOut
-q2_pred=outputmcmcAR_CPIAUCSL$q97.5$ypOut
+yp_pred=outputmcmcMA_CPIAUCSL$mean$ypOut
+q1_pred=outputmcmcMA_CPIAUCSL$q2.5$ypOut
+q2_pred=outputmcmcMA_CPIAUCSL$q97.5$ypOut
 
 #
 plot(t, data$CPIAUCSL_PC1, col="red", ylab="mu_t", ylim=c(min(q1_pred),max(q2_pred)),
@@ -224,11 +224,11 @@ MA_infl_fit <- data$CPIAUCSL_PC1 [1:275] - residuals(MA_infl)
 plot(tt, yp, type="p", pch="*", col="blue",)
 points(MA_infl_fit, type = "l", col = 2, lty = 2)
 
-theta.mcmc.mat=as.matrix(outputmcmcAR_CPIAUCSL$samples[,c("theta")], iters = FALSE)
+theta.mcmc.mat=as.matrix(outputmcmcMA_CPIAUCSL$samples[,c("theta")], iters = FALSE)
 ytheta=kdensity(theta.mcmc.mat)
 plot(ytheta,main="posterior of theta")
 abline(v=MA_infl$coef[1],col="green")
-abline(v=outputmcmcAR_CPIAUCSL$mean$theta,col="blue")
+abline(v=outputmcmcMA_CPIAUCSL$mean$theta,col="blue")
 
 predict_infl <- predict(MA_infl, n.ahead=30)
 predict_infl$pred
@@ -290,7 +290,7 @@ line_data_GDP <- list("N" = N,
                       "Npred" = Npred,
                       "Y" = data_subsample$GDP_PC1)
 
-outputmcmcAR_GDP <- jags(model.file = textConnection(modelMA_q2.string),
+outputmcmcMA_GDP <- jags(model.file = textConnection(modelMA_q2.string),
                          data = line_data_GDP,
                          parameters.to.save= c("theta_1", "theta_2", "sigma2", "eps", "m0", "Yp", "ypOut"), 
                          n.adapt=1000, n.iter=10000, n.chains = 3, n.burnin = 3000)
@@ -299,34 +299,34 @@ line_data_CPIAUCSL <- list("N" = N,
                            "Npred" = Npred,
                            "Y" = data_subsample$CPIAUCSL_PC1)
 
-outputmcmcAR_CPIAUCSL <- jags(model.file = textConnection(modelMA_q2.string),
+outputmcmcMA_CPIAUCSL <- jags(model.file = textConnection(modelMA_q2.string),
                               data = line_data_CPIAUCSL,
                               parameters.to.save= c("theta_1", "theta_2", "sigma2", "eps", "m0", "Yp", "ypOut"), 
                               n.adapt=1000, n.iter=10000, n.chains = 3, n.burnin = 3000)
 ```
 
 ```{r}
-mcmc_trace(outputmcmcAR_GDP$samples, pars = c("theta_1"))
-mcmc_areas(outputmcmcAR_GDP$samples, pars = c("theta_1"),  prob = 0.95)
-mcmc_trace(outputmcmcAR_GDP$samples, pars = c("theta_2"))
-mcmc_areas(outputmcmcAR_GDP$samples, pars = c("theta_2"),  prob = 0.95)
-mcmc_trace(outputmcmcAR_GDP$samples, pars = c("sigma2"))
-mcmc_areas(outputmcmcAR_GDP$samples, pars = c("sigma2"),  prob = 0.95)
+mcmc_trace(outputmcmcMA_GDP$samples, pars = c("theta_1"))
+mcmc_areas(outputmcmcMA_GDP$samples, pars = c("theta_1"),  prob = 0.95)
+mcmc_trace(outputmcmcMA_GDP$samples, pars = c("theta_2"))
+mcmc_areas(outputmcmcMA_GDP$samples, pars = c("theta_2"),  prob = 0.95)
+mcmc_trace(outputmcmcMA_GDP$samples, pars = c("sigma2"))
+mcmc_areas(outputmcmcMA_GDP$samples, pars = c("sigma2"),  prob = 0.95)
 
-autocorr.plot(outputmcmcAR_GDP$samples[,c("theta_1")],main="theta 1 GDP")
-autocorr.plot(outputmcmcAR_GDP$samples[,c("sigma2")],main="sigma2 GDP")
-autocorr.plot(outputmcmcAR_GDP$samples[,c("theta_2")],main="theta 2 GDP")
+autocorr.plot(outputmcmcMA_GDP$samples[,c("theta_1")],main="theta 1 GDP")
+autocorr.plot(outputmcmcMA_GDP$samples[,c("sigma2")],main="sigma2 GDP")
+autocorr.plot(outputmcmcMA_GDP$samples[,c("theta_2")],main="theta 2 GDP")
 
-mcmc_trace(outputmcmcAR_CPIAUCSL$samples, pars = c("theta_1"))
-mcmc_areas(outputmcmcAR_CPIAUCSL$samples, pars = c("theta_1"),  prob = 0.95)
-mcmc_trace(outputmcmcAR_CPIAUCSL$samples, pars = c("theta_2"))
-mcmc_areas(outputmcmcAR_CPIAUCSL$samples, pars = c("theta_2"),  prob = 0.95)
-mcmc_trace(outputmcmcAR_CPIAUCSL$samples, pars = c("sigma2"))
-mcmc_areas(outputmcmcAR_CPIAUCSL$samples, pars = c("sigma2"),  prob = 0.95)
+mcmc_trace(outputmcmcMA_CPIAUCSL$samples, pars = c("theta_1"))
+mcmc_areas(outputmcmcMA_CPIAUCSL$samples, pars = c("theta_1"),  prob = 0.95)
+mcmc_trace(outputmcmcMA_CPIAUCSL$samples, pars = c("theta_2"))
+mcmc_areas(outputmcmcMA_CPIAUCSL$samples, pars = c("theta_2"),  prob = 0.95)
+mcmc_trace(outputmcmcMA_CPIAUCSL$samples, pars = c("sigma2"))
+mcmc_areas(outputmcmcMA_CPIAUCSL$samples, pars = c("sigma2"),  prob = 0.95)
 
-autocorr.plot(outputmcmcAR_CPIAUCSL$samples[,c("theta_1")],main="theta CPIAUCSL")
-autocorr.plot(outputmcmcAR_CPIAUCSL$samples[,c("theta_2")],main="theta CPIAUCSL")
-autocorr.plot(outputmcmcAR_CPIAUCSL$samples[,c("sigma2")],main="sigma2 CPIAUCSL")
+autocorr.plot(outputmcmcMA_CPIAUCSL$samples[,c("theta_1")],main="theta CPIAUCSL")
+autocorr.plot(outputmcmcMA_CPIAUCSL$samples[,c("theta_2")],main="theta CPIAUCSL")
+autocorr.plot(outputmcmcMA_CPIAUCSL$samples[,c("sigma2")],main="sigma2 CPIAUCSL")
 ```
 
 
@@ -335,9 +335,9 @@ t  = seq(1,Ntot)
 tt = seq(1,N)
 
 #
-yp=outputmcmcAR_GDP$mean$Yp
-q1=outputmcmcAR_GDP$q2.5$Yp
-q2=outputmcmcAR_GDP$q97.5$Yp
+yp=outputmcmcMA_GDP$mean$Yp
+q1=outputmcmcMA_GDP$q2.5$Yp
+q2=outputmcmcMA_GDP$q97.5$Yp
 
 #
 plot(t, data$GDP_PC1, col="red",ylab="mu_t",
@@ -347,9 +347,9 @@ points(tt, yp,pch="*", col="blue")
 lines(tt, q1, type="l",col="blue", lwd = 1.5)
 lines(tt, q2, type="l",col="blue", lwd = 1.5)
 #
-yp_pred=outputmcmcAR_GDP$mean$ypOut
-q1_pred=outputmcmcAR_GDP$q2.5$ypOut
-q2_pred=outputmcmcAR_GDP$q97.5$ypOut
+yp_pred=outputmcmcMA_GDP$mean$ypOut
+q1_pred=outputmcmcMA_GDP$q2.5$ypOut
+q2_pred=outputmcmcMA_GDP$q97.5$ypOut
 
 #
 plot(t, data$GDP_PC1, col="red", ylab="mu_t",
@@ -371,17 +371,17 @@ MA_gdp_q2_fit <- data$GDP_PC1 [1:275] - residuals(MA_gdp_q2)
 plot(tt, yp, type="p", pch="*", col="blue",)
 points(MA_gdp_q2_fit, type = "l", col = 2, lty = 2)
 
-theta.mcmc.mat=as.matrix(outputmcmcAR_GDP$samples[,c("theta_1")], iters = FALSE)
+theta.mcmc.mat=as.matrix(outputmcmcMA_GDP$samples[,c("theta_1")], iters = FALSE)
 ytheta=kdensity(theta.mcmc.mat)
 plot(ytheta,main="posterior of theta 1")
 abline(v=MA_gdp_q2$coef[1],col="green")
-abline(v=outputmcmcAR_GDP$mean$theta_1,col="blue")
+abline(v=outputmcmcMA_GDP$mean$theta_1,col="blue")
 
-theta.mcmc.mat=as.matrix(outputmcmcAR_GDP$samples[,c("theta_2")], iters = FALSE)
+theta.mcmc.mat=as.matrix(outputmcmcMA_GDP$samples[,c("theta_2")], iters = FALSE)
 ytheta=kdensity(theta.mcmc.mat)
 plot(ytheta,main="posterior of theta 2")
 abline(v=MA_gdp_q2$coef[2],col="green")
-abline(v=outputmcmcAR_GDP$mean$theta_2,col="blue")
+abline(v=outputmcmcMA_GDP$mean$theta_2,col="blue")
 ```
 
 
@@ -390,9 +390,9 @@ t  = seq(1,Ntot)
 tt = seq(1,N)
 
 #
-yp=outputmcmcAR_CPIAUCSL$mean$Yp
-q1=outputmcmcAR_CPIAUCSL$q2.5$Yp
-q2=outputmcmcAR_CPIAUCSL$q97.5$Yp
+yp=outputmcmcMA_CPIAUCSL$mean$Yp
+q1=outputmcmcMA_CPIAUCSL$q2.5$Yp
+q2=outputmcmcMA_CPIAUCSL$q97.5$Yp
 
 #
 plot(t, data$CPIAUCSL_PC1, col="red",ylab="mu_t",
@@ -403,9 +403,9 @@ lines(tt, q1, type="l",col="blue", lwd = 1.5)
 lines(tt, q2, type="l",col="blue", lwd = 1.5)
 
 #
-yp_pred=outputmcmcAR_CPIAUCSL$mean$ypOut
-q1_pred=outputmcmcAR_CPIAUCSL$q2.5$ypOut
-q2_pred=outputmcmcAR_CPIAUCSL$q97.5$ypOut
+yp_pred=outputmcmcMA_CPIAUCSL$mean$ypOut
+q1_pred=outputmcmcMA_CPIAUCSL$q2.5$ypOut
+q2_pred=outputmcmcMA_CPIAUCSL$q97.5$ypOut
 
 #
 plot(t, data$CPIAUCSL_PC1, col="red", ylab="mu_t", ylim=c(min(q1_pred),max(q2_pred)),
@@ -426,15 +426,15 @@ MA_infl_q2_fit <- data$CPIAUCSL_PC1 [1:275] - residuals(MA_infl_q2)
 plot(tt, yp, type="p", pch="*", col="blue",)
 points(MA_infl_q2_fit, type = "l", col = 2, lty = 2)
 
-theta.mcmc.mat=as.matrix(outputmcmcAR_CPIAUCSL$samples[,c("theta_1")], iters = FALSE)
+theta.mcmc.mat=as.matrix(outputmcmcMA_CPIAUCSL$samples[,c("theta_1")], iters = FALSE)
 ytheta=kdensity(theta.mcmc.mat)
 plot(ytheta,main="posterior of theta 1")
 abline(v=MA_infl_q2$coef[1],col="green")
-abline(v=outputmcmcAR_CPIAUCSL$mean$theta_1,col="blue")
+abline(v=outputmcmcMA_CPIAUCSL$mean$theta_1,col="blue")
 
-theta.mcmc.mat=as.matrix(outputmcmcAR_CPIAUCSL$samples[,c("theta_2")], iters = FALSE)
+theta.mcmc.mat=as.matrix(outputmcmcMA_CPIAUCSL$samples[,c("theta_2")], iters = FALSE)
 ytheta=kdensity(theta.mcmc.mat)
 plot(ytheta,main="posterior of theta 2")
 abline(v=MA_infl_q2$coef[2],col="green")
-abline(v=outputmcmcAR_CPIAUCSL$mean$theta_2,col="blue")
+abline(v=outputmcmcMA_CPIAUCSL$mean$theta_2,col="blue")
 ```
