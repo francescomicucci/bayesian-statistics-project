@@ -8,6 +8,7 @@ rm(list=ls())
 library(rjags)
 library(bayesplot)
 library(jagsUI)
+library(rugarch)
 ```
 
 ```{r}
@@ -20,38 +21,42 @@ data$CPIAUCSL_PC1 = as.numeric(data$CPIAUCSL_PC1)
 
 ```{r}
 modelGARCH.string <-"model {
-  ## Parameters:
   # Likelihood
-  Y[1]  ~ dnorm(m0, tau[1])
-  Yp[1] ~ dnorm(m0, tau[1])
+  Y[1]  ~ dnorm(mu[1], tau[1])
+  Yp[1] ~ dnorm(mu[1], tau[1])
+  mu[1]     <- m0
   tau[1]    <- 1 / sigma2[1]
   sigma2[1] <- a[1]
-  eps2[1]   <- (Y[1] - m0) * (Y[1] - m0)
+  eps2[1]   <- (Y[1] - mu[1]) * (Y[1] - mu[1])
   for(i in 2:N) {
-    Y[i]      ~ dnorm(Y[i-1], tau[i])
-    Yp[i]     ~ dnorm(Y[i-1], tau[i])      # Prediction in sample
+    Y[i]      ~ dnorm(mu[i], tau[i])
+    Yp[i]     ~ dnorm(mu[i], tau[i])      # Prediction in sample
+    mu[i]     <- m0 + alpha * Y[i-1]
     tau[i]    <- 1 / sigma2[i]
     sigma2[i] <- a[1] + a[2] * eps2[i-1] + a[3] * sigma2[i-1]
-    eps2[i]   <- (Y[i] - Y[i-1]) * (Y[i] - Y[i-1])
+    eps2[i]   <- (Y[i] - mu[i]) * (Y[i] - mu[i])
   }
   
   # Prediction out of sample 
-  ypOut[1]     ~  dnorm(Y[N], tauOut[1])
+  ypOut[1]     ~  dnorm(muOut[1], tauOut[1])
+  muOut[1]     <- m0 + alpha * Y[N]
   tauOut[1]    <- 1 / sigma2Out[1]
   sigma2Out[1] <- a[1] + a[2] * eps2[N] + a[3] * sigma2[N]
-  eps2Out[1]   <- (ypOut[1] - Y[N]) * (ypOut[1] - Y[N])
+  eps2Out[1]   <- (ypOut[1] - muOut[1]) * (ypOut[1] - muOut[1])
   for (k in 2:Npred) {
-    ypOut[k]     ~  dnorm(ypOut[k-1], tauOut[k])
+    ypOut[k]     ~  dnorm(muOut[k], tauOut[k])
+    muOut[k]     <- m0 + alpha * ypOut[k-1]
     tauOut[k]    <- 1 / sigma2Out[k]
     sigma2Out[k] <- a[1] + a[2] * eps2Out[k-1] + a[3] * sigma2Out[k-1]
-    eps2Out[k]   <- (ypOut[k] - ypOut[k-1]) * (ypOut[k] - ypOut[k-1])
+    eps2Out[k]   <- (ypOut[k] - muOut[k]) * (ypOut[k] - muOut[k])
   }
   
   # Prior 
   for(j in 1:3) {
     a[j] ~ dgamma(9.0, 2.0)
   }
-  m0 ~ dnorm(0.0, 1.0E-4)
+  alpha ~ dunif(-1, 1)
+  m0    ~ dnorm(0.0, 1.0E-4)
 }"
 ```
 
@@ -67,37 +72,49 @@ line_data_GDP <- list("N" = N,
                       "Npred" = Npred,
                       "Y" = data_subsample$GDP_PC1)
 
-outputmcmcARMA_GDP <- jags(model.file = textConnection(modelGARCH.string),
+outputmcmcGARCH_GDP <- jags(model.file = textConnection(modelGARCH.string),
                          data = line_data_GDP,
-                         parameters.to.save= c("a", "sigma2", "m0", "Yp", "ypOut"), 
+                         parameters.to.save= c("a", "alpha", "sigma2", "m0", "Yp", "ypOut"), 
                          n.adapt=1000, n.iter=10000, n.chains = 3, n.burnin = 1000)
 
 line_data_CPIAUCSL <- list("N" = N,
                            "Npred" = Npred,
                            "Y" = data_subsample$CPIAUCSL_PC1)
 
-outputmcmcARMA_CPIAUCSL <- jags(model.file = textConnection(modelGARCH.string),
+outputmcmcGARCH_CPIAUCSL <- jags(model.file = textConnection(modelGARCH.string),
                               data = line_data_CPIAUCSL,
-                              parameters.to.save= c("a", "sigma2", "m0", "Yp", "ypOut"), 
+                              parameters.to.save= c("a", "alpha", "sigma2", "m0", "Yp", "ypOut"), 
                               n.adapt=1000, n.iter=10000, n.chains = 3, n.burnin = 1000)
 ```
 
 ```{r}
-# mcmc_trace(outputmcmcARMA_GDP$samples, pars = c("a"))
-# mcmc_areas(outputmcmcARMA_GDP$samples, pars = c("a"),  prob = 0.95)
-# mcmc_trace(outputmcmcARMA_GDP$samples, pars = c("sigma2"))
-# mcmc_areas(outputmcmcARMA_GDP$samples, pars = c("sigma2"),  prob = 0.95)
+mcmc_trace(outputmcmcGARCH_GDP$samples, pars = c("a[1]"))
+mcmc_areas(outputmcmcGARCH_GDP$samples, pars = c("a[1]"),  prob = 0.95)
+mcmc_trace(outputmcmcGARCH_GDP$samples, pars = c("a[2]"))
+mcmc_areas(outputmcmcGARCH_GDP$samples, pars = c("a[2]"),  prob = 0.95)
+mcmc_trace(outputmcmcGARCH_GDP$samples, pars = c("a[3]"))
+mcmc_areas(outputmcmcGARCH_GDP$samples, pars = c("a[3]"),  prob = 0.95)
+mcmc_trace(outputmcmcGARCH_GDP$samples, pars = c("alpha"))
+mcmc_areas(outputmcmcGARCH_GDP$samples, pars = c("alpha"),  prob = 0.95)
 
-# autocorr.plot(outputmcmcARMA_GDP$samples[,c("a")],main="alpha GDP")
-# autocorr.plot(outputmcmcARMA_GDP$samples[,c("sigma2")],main="sigma2 GDP")
+autocorr.plot(outputmcmcGARCH_GDP$samples[,c("a[1]")],main="a[1] GDP")
+autocorr.plot(outputmcmcGARCH_GDP$samples[,c("a[2]")],main="a[2] GDP")
+autocorr.plot(outputmcmcGARCH_GDP$samples[,c("a[3]")],main="a[3] GDP")
+autocorr.plot(outputmcmcGARCH_GDP$samples[,c("alpha")],main="alpha GDP")
 
-# mcmc_trace(outputmcmcARMA_CPIAUCSL$samples, pars = c("a"))
-# mcmc_areas(outputmcmcARMA_CPIAUCSL$samples, pars = c("a"),  prob = 0.95)
-# mcmc_trace(outputmcmcARMA_CPIAUCSL$samples, pars = c("sigma2"))
-# mcmc_areas(outputmcmcARMA_CPIAUCSL$samples, pars = c("sigma2"),  prob = 0.95)
+mcmc_trace(outputmcmcGARCH_CPIAUCSL$samples, pars = c("a[1]"))
+mcmc_areas(outputmcmcGARCH_CPIAUCSL$samples, pars = c("a[1]"),  prob = 0.95)
+mcmc_trace(outputmcmcGARCH_CPIAUCSL$samples, pars = c("a[2]"))
+mcmc_areas(outputmcmcGARCH_CPIAUCSL$samples, pars = c("a[2]"),  prob = 0.95)
+mcmc_trace(outputmcmcGARCH_CPIAUCSL$samples, pars = c("a[3]"))
+mcmc_areas(outputmcmcGARCH_CPIAUCSL$samples, pars = c("a[3]"),  prob = 0.95)
+mcmc_trace(outputmcmcGARCH_CPIAUCSL$samples, pars = c("alpha"))
+mcmc_areas(outputmcmcGARCH_CPIAUCSL$samples, pars = c("alpha"),  prob = 0.95)
 
-# autocorr.plot(outputmcmcARMA_CPIAUCSL$samples[,c("a")],main="alpha CPIAUCSL")
-# autocorr.plot(outputmcmcARMA_CPIAUCSL$samples[,c("sigma2")],main="sigma2 CPIAUCSL")
+autocorr.plot(outputmcmcGARCH_CPIAUCSL$samples[,c("a[1]")],main="a[1] CPIAUCSL")
+autocorr.plot(outputmcmcGARCH_CPIAUCSL$samples[,c("a[2]")],main="a[2] CPIAUCSL")
+autocorr.plot(outputmcmcGARCH_CPIAUCSL$samples[,c("a[3]")],main="a[3] CPIAUCSL")
+autocorr.plot(outputmcmcGARCH_CPIAUCSL$samples[,c("alpha")],main="alpha CPIAUCSL")
 ```
 
 ```{r}
@@ -105,9 +122,9 @@ t  = seq(1,Ntot)
 tt = seq(1,N)
 
 #
-yp=outputmcmcARMA_GDP$mean$Yp
-q1=outputmcmcARMA_GDP$q2.5$Yp
-q2=outputmcmcARMA_GDP$q97.5$Yp
+yp=outputmcmcGARCH_GDP$mean$Yp
+q1=outputmcmcGARCH_GDP$q2.5$Yp
+q2=outputmcmcGARCH_GDP$q97.5$Yp
 
 #
 plot(t, data$GDP_PC1, col="red",ylab="mu_t",
@@ -118,9 +135,9 @@ lines(tt, q1, type="l",col="blue", lwd = 1.5)
 lines(tt, q2, type="l",col="blue", lwd = 1.5)
 
 #
-yp_pred=outputmcmcARMA_GDP$mean$ypOut
-q1_pred=outputmcmcARMA_GDP$q2.5$ypOut
-q2_pred=outputmcmcARMA_GDP$q97.5$ypOut
+yp_pred=outputmcmcGARCH_GDP$mean$ypOut
+q1_pred=outputmcmcGARCH_GDP$q2.5$ypOut
+q2_pred=outputmcmcGARCH_GDP$q97.5$ypOut
 
 #
 plot(t, data$GDP_PC1, col="red", ylab="mu_t", ylim=c(min(q1_pred),max(q2_pred)),
@@ -135,13 +152,44 @@ lines(seq((N+1),Ntot,1),q2_pred,col="orange",lwd = 1.5)
 ```
 
 ```{r}
+garch_spec <- ugarchspec(
+  variance.model = list(model = "sGARCH", garchOrder = c(1, 1)),
+  mean.model = list(armaOrder = c(1, 0), include.mean = TRUE),
+  distribution.model = "norm"
+)
+fit_garch  <- ugarchfit(spec = garch_spec, data = data_subsample$GDP_PC1)
+fit_garch
+in_sample_predictions <- fitted(fit_garch)
+
+# Plot in-sample predictions
+plot(yp, type = "p", col = "green2", main = "GARCH Model In-Sample Predictions",
+     ylab = "GDP_PC1", xlab = "Time")
+points(as.vector(in_sample_predictions[,1]), col = "orange")
+lines(data$GDP_PC1[1:275], col = "blue")
+legend("topright", legend = c("JAGS", "sGARCH", "data"),
+       col = c("green2", "orange", "blue"), lty = 1)
+
+# Plot out-of-sample predictions
+forecast = ugarchforecast(fit_garch, n.ahead=Npred, data=data_subsample$GDP_PC1)
+plot(yp_pred, type = "p", col = "lightblue", main = "GARCH Model Out-of-Sample Predictions",
+     ylab = "GDP_PC1", xlab = "Time", ylim=c(0, 12))
+points(as.vector(fitted(forecast)), col = "red")
+lines(data$GDP_PC1[276:(276+Npred)], col = "blue")
+legend("topright", legend = c("JAGS", "sGARCH", "data"),
+       col = c("lightblue", "red", "blue"), lty = 1)
+
+mean(sqrt((yp - as.vector(in_sample_predictions))^2))
+mean(sqrt((yp_pred - as.vector(fitted(forecast)))^2))
+```
+
+```{r}
 t  = seq(1,Ntot)
 tt = seq(1,N)
 
 #
-yp=outputmcmcARMA_CPIAUCSL$mean$Yp
-q1=outputmcmcARMA_CPIAUCSL$q2.5$Yp
-q2=outputmcmcARMA_CPIAUCSL$q97.5$Yp
+yp=outputmcmcGARCH_CPIAUCSL$mean$Yp
+q1=outputmcmcGARCH_CPIAUCSL$q2.5$Yp
+q2=outputmcmcGARCH_CPIAUCSL$q97.5$Yp
 
 #
 plot(t, data$CPIAUCSL_PC1, col="red",ylab="mu_t",
@@ -152,9 +200,9 @@ lines(tt, q1, type="l",col="blue", lwd = 1.5)
 lines(tt, q2, type="l",col="blue", lwd = 1.5)
 
 #
-yp_pred=outputmcmcARMA_CPIAUCSL$mean$ypOut
-q1_pred=outputmcmcARMA_CPIAUCSL$q2.5$ypOut
-q2_pred=outputmcmcARMA_CPIAUCSL$q97.5$ypOut
+yp_pred=outputmcmcGARCH_CPIAUCSL$mean$ypOut
+q1_pred=outputmcmcGARCH_CPIAUCSL$q2.5$ypOut
+q2_pred=outputmcmcGARCH_CPIAUCSL$q97.5$ypOut
 
 #
 plot(t, data$CPIAUCSL_PC1, col="red", ylab="mu_t", ylim=c(min(q1_pred),max(q2_pred)),
@@ -169,10 +217,32 @@ lines(seq((N+1),Ntot,1),q2_pred,col="orange",lwd = 1.5)
 ```
 
 ```{r}
-library(rugarch)
-garch_spec <- ugarchspec(variance.model=list(model="sGARCH", garchOrder=c(1,1)), mean.model=list(armaOrder=c(0,0)))
-fit_garch  <- ugarchfit(spec = garch_spec, data = data_subsample$GDP_PC1)
+garch_spec <- ugarchspec(
+  variance.model = list(model = "sGARCH", garchOrder = c(1, 1)),
+  mean.model = list(armaOrder = c(1, 0), include.mean = TRUE),
+  distribution.model = "norm"
+)
+fit_garch  <- ugarchfit(spec = garch_spec, data = data_subsample$CPIAUCSL_PC1)
 fit_garch
-forecast = ugarchforecast(fit_garch, n.ahead=Npred, data=data_subsample$GDP_PC1)
-fitted(forecast)
+in_sample_predictions <- fitted(fit_garch)
+
+# Plot in-sample predictions
+plot(yp, type = "p", col = "green2", main = "GARCH Model In-Sample Predictions",
+     ylab = "CPIAUCSL_PC1", xlab = "Time")
+points(as.vector(in_sample_predictions[,1]), col = "orange")
+lines(data$CPIAUCSL_PC1[1:275], col = "blue")
+legend("topright", legend = c("JAGS", "sGARCH", "data"),
+       col = c("green2", "orange", "blue"), lty = 1)
+
+# Plot out-of-sample predictions
+forecast = ugarchforecast(fit_garch, n.ahead=Npred, data=data_subsample$CPIAUCSL_PC1)
+plot(yp_pred, type = "p", col = "lightblue", main = "GARCH Model Out-of-Sample Predictions",
+     ylab = "CPIAUCSL_PC1", xlab = "Time", ylim=c(0, 10))
+points(as.vector(fitted(forecast)), col = "red")
+lines(data$CPIAUCSL_PC1[276:(276+Npred)], col = "blue")
+legend("topright", legend = c("JAGS", "sGARCH", "data"),
+       col = c("lightblue", "red", "blue"), lty = 1)
+
+mean(sqrt((yp - as.vector(in_sample_predictions))^2))
+mean(sqrt((yp_pred - as.vector(fitted(forecast)))^2))
 ```
