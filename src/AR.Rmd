@@ -14,7 +14,7 @@ library(kdensity)
 
 ```{r}
 # Load data
-data = read.csv("../Dataset/gdp_inflation.csv", header=T)
+data = read.csv("../dataset/gdp_inflation.csv", header=T)
 data$DATE         = as.Date(data$DATE)
 data$GDP_PC1      = as.numeric(data$GDP_PC1)
 data$CPIAUCSL_PC1 = as.numeric(data$CPIAUCSL_PC1)
