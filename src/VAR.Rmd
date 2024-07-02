@@ -98,13 +98,13 @@ mcmc_areas(outputmcmcVAR$samples, pars = c("cov.matrix[2,2]"),  prob = 0.95)
 mcmc_trace(outputmcmcVAR$samples, pars = c("cov.matrix[1,2]"))
 mcmc_areas(outputmcmcVAR$samples, pars = c("cov.matrix[1,2]"),  prob = 0.95)
 
-autocorr.plot(outputmcmcVAR$samples[,c("alpha[1,1]")],main="alpha_11 GDP")
-autocorr.plot(outputmcmcVAR$samples[,c("alpha[1,2]")],main="alpha_12 GDP")
-autocorr.plot(outputmcmcVAR$samples[,c("alpha[2,1]")],main="alpha_21 GDP")
-autocorr.plot(outputmcmcVAR$samples[,c("alpha[2,2]")],main="alpha_22 GDP")
-autocorr.plot(outputmcmcVAR$samples[,c("cov.matrix[1,1]")],main="cov.matrix GDP")
-autocorr.plot(outputmcmcVAR$samples[,c("cov.matrix[2,2]")],main="cov.matrix GDP")
-autocorr.plot(outputmcmcVAR$samples[,c("cov.matrix[1,2]")],main="cov.matrix GDP")
+autocorr.plot(outputmcmcVAR$samples[,c("alpha[1,1]")],main="alpha_11")
+autocorr.plot(outputmcmcVAR$samples[,c("alpha[1,2]")],main="alpha_12")
+autocorr.plot(outputmcmcVAR$samples[,c("alpha[2,1]")],main="alpha_21")
+autocorr.plot(outputmcmcVAR$samples[,c("alpha[2,2]")],main="alpha_22")
+autocorr.plot(outputmcmcVAR$samples[,c("cov.matrix[1,1]")],main="cov.matrix_11")
+autocorr.plot(outputmcmcVAR$samples[,c("cov.matrix[2,2]")],main="cov.matrix_22")
+autocorr.plot(outputmcmcVAR$samples[,c("cov.matrix[1,2]")],main="cov.matrix_12")
 ```
 
 ```{r}
