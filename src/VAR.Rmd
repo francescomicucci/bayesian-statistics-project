@@ -1,0 +1,221 @@
+---
+title: "VAR"
+output: html_notebook
+---
+
+```{r}
+rm(list=ls())
+library(rjags)
+library(bayesplot)
+library(jagsUI)
+library(kdensity)
+library(vars)
+
+```
+
+```{r}
+# New Family Houses Sold: United States
+# Source: https://fred.stlouisfed.org/series/HSN1F
+
+# Load data
+data = read.csv("../Dataset/gdp_inflation.csv", header=T)
+data$DATE         = as.Date(data$DATE)
+data$GDP_PC1      = as.numeric(data$GDP_PC1)
+data$CPIAUCSL_PC1 = as.numeric(data$CPIAUCSL_PC1)
+sum(is.na(data$GDP_PC1))
+
+plot(data$DATE[1:305],data$GDP_PC1[1:305],type="l",xlab="",ylab="GDP",main="GDP+INFL")
+lines(data$DATE[1:305],data$CPIAUCSL_PC1[1:305],type="l",col="red")
+```
+
+
+```{r}
+modelVAR.string <-"model {
+  ## Parameters: alpha, tau, m0
+  # Likelihood
+  Y[1,1]   ~ dnorm(mu[1,1], tau[1])
+  Y[2,1]   ~ dnorm(mu[2,1], tau[2])
+  Yp[1,1]  ~ dnorm(mu[1,1], tau[1])      # Prediction in sample
+  Yp[2,1]  ~ dnorm(mu[2,1], tau[2])      # Prediction in sample   
+  mu[1,1]  <- m0[1]
+  mu[2,1] <- m0[2]
+  
+  for (i in 2:N) {
+    Y[1,i]   ~ dnorm(mu[1,i], tau[1])
+    Y[2,i]   ~ dnorm(mu[2,i], tau[2])
+    Yp[1,i]  ~ dnorm(mu[1,i], tau[1])      # Prediction in sample
+    Yp[2,i]  ~ dnorm(mu[2,i], tau[2])      # Prediction in sample   
+    mu[1,i]  <- m0[1] + alpha[1,1] * Y[1,i-1] + alpha[1,2] * Y[2,i-1]
+    mu[2,i] <- m0[2] + alpha[2,1] * Y[1,i-1] + alpha[2,2] * Y[2,i-1]
+  }
+  
+  # Prediction out of sample 
+  ypOut[1,1]  ~ dnorm(muOut[1,1], tau[1])
+  muOut[1,1]  <- m0[1] + alpha[1,1] * Y[1,N] + alpha[1,2] * Y[2,N]
+  ypOut[2,1]  ~ dnorm(muOut[2,1], tau[2])
+  muOut[2,1]  <- m0[2] + alpha[2,1] * Y[1,N] + alpha[2,2] * Y[2,N]
+  for (k in 2:Npred) {
+    ypOut[1,k]  ~ dnorm(muOut[1,k], tau[1])
+    muOut[1,k]  <- m0[1] + alpha[1,1] * ypOut[1,k-1] + alpha[1,2] * ypOut[2,k-1]
+    ypOut[2,k]  ~ dnorm(muOut[2,k], tau[2])
+    muOut[2,k]  <- m0[2] + alpha[2,1] * ypOut[1,k-1] + alpha[2,2] * ypOut[2,k-1]
+  }
+  
+  sigma2[1] <- 1/tau[1]
+  sigma2[2] <- 1/tau[2]
+  
+  # Prior 
+  
+  for(l in 1:2){
+    for(j in 1:2){
+    alpha[l,j] ~ dunif(-1, 1)
+    }
+  }
+  
+  for(h in 1:2){
+    tau[h]   ~ dgamma(1, 0.1)
+  }
+  
+  for(m in 1:2){
+    m0[m]  ~ dnorm(0.0, 1.0E-4)
+  }
+
+}"
+```
+
+```{r}
+# Prepare data
+Ntot  = dim(data)[1]
+Npred = round(0.1 * Ntot) # Horizon for out-of-sample prediction
+N     = Ntot - Npred
+
+data_subsample = data[1:N, ]
+
+line_data <- list("N" = N,
+                      "Npred" = Npred,
+                      "Y" = t(data_subsample[,2:3]))
+
+outputmcmcVAR <- jags(model.file = textConnection(modelVAR.string),
+                         data = line_data,
+                         parameters.to.save= c("alpha", "sigma2", "m0", "Yp", "ypOut"), 
+                         n.adapt=1000, n.iter=10000, n.chains = 3, n.burnin = 1000)
+
+
+```
+
+```{r}
+mcmc_trace(outputmcmcVAR$samples, pars = c("alpha[1,1]"))
+mcmc_areas(outputmcmcVAR$samples, pars = c("alpha[1,1]"),  prob = 0.95)
+mcmc_trace(outputmcmcVAR$samples, pars = c("alpha[1,2]"))
+mcmc_areas(outputmcmcVAR$samples, pars = c("alpha[1,2]"),  prob = 0.95)
+mcmc_trace(outputmcmcVAR$samples, pars = c("alpha[2,1]"))
+mcmc_areas(outputmcmcVAR$samples, pars = c("alpha[2,1]"),  prob = 0.95)
+mcmc_trace(outputmcmcVAR$samples, pars = c("alpha[2,2]"))
+mcmc_areas(outputmcmcVAR$samples, pars = c("alpha[2,2]"),  prob = 0.95)
+mcmc_trace(outputmcmcVAR$samples, pars = c("sigma2[1]"))
+mcmc_areas(outputmcmcVAR$samples, pars = c("sigma2[2]"),  prob = 0.95)
+
+autocorr.plot(outputmcmcVAR$samples[,c("alpha[1,1]")],main="alpha_11 GDP")
+autocorr.plot(outputmcmcVAR$samples[,c("alpha[1,2]")],main="alpha_12 GDP")
+autocorr.plot(outputmcmcVAR$samples[,c("alpha[2,1]")],main="alpha_21 GDP")
+autocorr.plot(outputmcmcVAR$samples[,c("alpha[2,2]")],main="alpha_22 GDP")
+autocorr.plot(outputmcmcVAR$samples[,c("sigma2[1]")],main="sigma2_1 GDP")
+autocorr.plot(outputmcmcVAR$samples[,c("sigma2[2]")],main="sigma2_2 GDP")
+
+```
+
+```{r}
+t  = seq(1,Ntot)
+tt = seq(1,N)
+
+#
+yp=outputmcmcVAR$mean$Yp[1,]
+q1=outputmcmcVAR$q2.5$Yp[1,]
+q2=outputmcmcVAR$q97.5$Yp[1,]
+
+#
+plot(t, data$GDP_PC1, col="red",ylab="mu_t",
+     main="data (red), in samp.pred. (blue)")
+lines(t, data$GDP_PC1,col="red")
+points(tt, yp,pch="*", col="blue")
+lines(tt, q1, type="l",col="blue", lwd = 1.5)
+lines(tt, q2, type="l",col="blue", lwd = 1.5)
+
+#
+yp_pred=outputmcmcVAR$mean$ypOut[1,]
+q1_pred=outputmcmcVAR$q2.5$ypOut[1,]
+q2_pred=outputmcmcVAR$q97.5$ypOut[1,]
+
+#
+plot(t, data$GDP_PC1, col="red", ylab="mu_t", ylim=c(min(q1_pred),max(q2_pred)),
+     main= "out-of-sample prediction (orange)")
+abline(v=N,col="orange")
+lines(tt, yp, type="p", pch="*", col="blue",)
+lines(tt, q1, type="l", col="blue", lwd = 1.5)
+lines(tt, q2, type="l", col="blue", lwd = 1.5)
+points(seq((N+1),Ntot,1),pch="*",yp_pred,col="orange")
+lines(seq((N+1),Ntot,1),q1_pred,col="orange",lwd = 1.5)
+lines(seq((N+1),Ntot,1),q2_pred,col="orange",lwd = 1.5)
+```
+
+```{r}
+help(VAR)
+var_model= VAR(data_subsample[,2:3], p=1, type="const")
+summary(var_model)
+var_fit <- fitted(var_model)
+plot(tt, yp, type="p", pch="*", col="blue",)
+points(var_fit[,1], type = "l", col = 2, lty = 2)
+
+prediction <- predict(var_model, n.ahead = 30)
+ts.plot(data$GDP_PC1)
+points(var_fit[,1], type = "l", col = 2, lty = 2)
+points(276:305,prediction$fcst$GDP_PC1[,1], type = "l", col = 'orange', lty = 2)
+
+```
+
+```{r}
+t  = seq(1,Ntot)
+tt = seq(1,N)
+
+#
+yp=outputmcmcVAR$mean$Yp[2,]
+q1=outputmcmcVAR$q2.5$Yp[2,]
+q2=outputmcmcVAR$q97.5$Yp[2,]
+
+#
+plot(t, data$CPIAUCSL_PC1, col="red",ylab="mu_t",
+     main="data (red), in samp.pred. (blue)")
+lines(t, data$CPIAUCSL_PC1,col="red")
+points(tt, yp,pch="*", col="blue")
+lines(tt, q1, type="l",col="blue", lwd = 1.5)
+lines(tt, q2, type="l",col="blue", lwd = 1.5)
+
+#
+yp_pred=outputmcmcVAR$mean$ypOut[2,]
+q1_pred=outputmcmcVAR$q2.5$ypOut[2,]
+q2_pred=outputmcmcVAR$q97.5$ypOut[2,]
+
+#
+plot(t, data$CPIAUCSL_PC1, col="red", ylab="mu_t", ylim=c(min(q1_pred),max(q2_pred)),
+     main= "out-of-sample prediction (orange)")
+abline(v=N,col="orange")
+lines(tt, yp, type="p", pch="*", col="blue",)
+lines(tt, q1, type="l", col="blue", lwd = 1.5)
+lines(tt, q2, type="l", col="blue", lwd = 1.5)
+points(seq((N+1),Ntot,1),pch="*",yp_pred,col="orange")
+lines(seq((N+1),Ntot,1),q1_pred,col="orange",lwd = 1.5)
+lines(seq((N+1),Ntot,1),q2_pred,col="orange",lwd = 1.5)
+```
+
+```{r}
+var_model= VAR(data_subsample[,2:3], p=1, type="const")
+summary(var_model)
+var_fit <- fitted(var_model)
+plot(tt, yp, type="p", pch="*", col="blue",)
+points(var_fit[,2], type = "l", col = 2, lty = 2)
+
+prediction <- predict(var_model, n.ahead = 30)
+ts.plot(data$CPIAUCSL_PC1)
+points(var_fit[,2], type = "l", col = 2, lty = 2)
+points(276:305,prediction$fcst$CPIAUCSL_PC1[,1], type = "l", col = 'orange', lty = 2)
+```
