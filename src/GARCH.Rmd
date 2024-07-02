@@ -115,6 +115,8 @@ autocorr.plot(outputmcmcGARCH_CPIAUCSL$samples[,c("a[1]")],main="a[1] CPIAUCSL")
 autocorr.plot(outputmcmcGARCH_CPIAUCSL$samples[,c("a[2]")],main="a[2] CPIAUCSL")
 autocorr.plot(outputmcmcGARCH_CPIAUCSL$samples[,c("a[3]")],main="a[3] CPIAUCSL")
 autocorr.plot(outputmcmcGARCH_CPIAUCSL$samples[,c("alpha")],main="alpha CPIAUCSL")
+
+plot(outputmcmcGARCH_GDP$mean$sigma2, main = "sigma^2", ylab = "sigma^2", xlab = "Time")
 ```
 
 ```{r}
