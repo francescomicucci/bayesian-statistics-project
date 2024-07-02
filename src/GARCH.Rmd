@@ -22,9 +22,8 @@ data$CPIAUCSL_PC1 = as.numeric(data$CPIAUCSL_PC1)
 ```{r}
 modelGARCH.string <-"model {
   # Likelihood
-  Y[1]  ~ dnorm(mu[1], tau[1])
-  Yp[1] ~ dnorm(mu[1], tau[1])
-  mu[1]     <- m0
+  Yp[1] <- mu[1]
+  mu[1]     <- Y[1]
   tau[1]    <- 1 / sigma2[1]
   sigma2[1] <- a[1]
   eps2[1]   <- (Y[1] - mu[1]) * (Y[1] - mu[1])
@@ -53,7 +52,8 @@ modelGARCH.string <-"model {
   
   # Prior 
   for(j in 1:3) {
-    a[j] ~ dgamma(9.0, 2.0)
+    a[j] ~ dgamma(0.01, 0.01)
+
   }
   alpha ~ dunif(-1, 1)
   m0    ~ dnorm(0.0, 1.0E-4)
@@ -152,6 +152,7 @@ lines(tt, q2, type="l", col="blue", lwd = 1.5)
 points(seq((N+1),Ntot,1),pch="*",yp_pred,col="orange")
 lines(seq((N+1),Ntot,1),q1_pred,col="orange",lwd = 1.5)
 lines(seq((N+1),Ntot,1),q2_pred,col="orange",lwd = 1.5)
+
 ```
 
 ```{r}
@@ -183,6 +184,30 @@ legend("topright", legend = c("JAGS", "sGARCH", "data"),
 
 mean(sqrt((yp - as.vector(in_sample_predictions))^2))
 mean(sqrt((yp_pred - as.vector(fitted(forecast)))^2))
+
+a1.mcmc.mat=as.matrix(outputmcmcGARCH_GDP$samples[,c("a[1]")], iters = FALSE)
+ya1=kdensity(a1.mcmc.mat)
+plot(ya1,main="posterior of a1")
+abline(v=coef(fit_garch)[3],col="green")
+abline(v=outputmcmcGARCH_GDP$mean$a[1],col="blue")
+
+a2.mcmc.mat=as.matrix(outputmcmcGARCH_GDP$samples[,c("a[2]")], iters = FALSE)
+ya2=kdensity(a2.mcmc.mat)
+plot(ya2,main="posterior of a2")
+abline(v=coef(fit_garch)[4],col="green")
+abline(v=outputmcmcGARCH_GDP$mean$a[2],col="blue")
+
+a3.mcmc.mat=as.matrix(outputmcmcGARCH_GDP$samples[,c("a[3]")], iters = FALSE)
+ya3=kdensity(a3.mcmc.mat)
+plot(ya3,main="posterior of a3")
+abline(v=coef(fit_garch)[5],col="green")
+abline(v=outputmcmcGARCH_GDP$mean$a[3],col="blue")
+
+alpha.mcmc.mat=as.matrix(outputmcmcGARCH_GDP$samples[,c("alpha")], iters = FALSE)
+yalpha=kdensity(alpha.mcmc.mat)
+plot(yalpha,main="posterior of alpha")
+abline(v=coef(fit_garch)[2],col="green")
+abline(v=outputmcmcGARCH_GDP$mean$alpha,col="blue")
 ```
 
 ```{r}
@@ -248,4 +273,28 @@ legend("topright", legend = c("JAGS", "sGARCH", "data"),
 
 mean(sqrt((yp - as.vector(in_sample_predictions))^2))
 mean(sqrt((yp_pred - as.vector(fitted(forecast)))^2))
+
+a1.mcmc.mat=as.matrix(outputmcmcGARCH_CPIAUCSL$samples[,c("a[1]")], iters = FALSE)
+ya1=kdensity(a1.mcmc.mat)
+plot(ya1,main="posterior of a1")
+abline(v=coef(fit_garch)[3],col="green")
+abline(v=outputmcmcGARCH_CPIAUCSL$mean$a[1],col="blue")
+
+a2.mcmc.mat=as.matrix(outputmcmcGARCH_CPIAUCSL$samples[,c("a[2]")], iters = FALSE)
+ya2=kdensity(a2.mcmc.mat)
+plot(ya2,main="posterior of a2")
+abline(v=coef(fit_garch)[4],col="green")
+abline(v=outputmcmcGARCH_CPIAUCSL$mean$a[2],col="blue")
+
+a3.mcmc.mat=as.matrix(outputmcmcGARCH_CPIAUCSL$samples[,c("a[3]")], iters = FALSE)
+ya3=kdensity(a3.mcmc.mat)
+plot(ya3,main="posterior of a3")
+abline(v=coef(fit_garch)[5],col="green")
+abline(v=outputmcmcGARCH_CPIAUCSL$mean$a[3],col="blue")
+
+alpha.mcmc.mat=as.matrix(outputmcmcGARCH_CPIAUCSL$samples[,c("alpha")], iters = FALSE)
+yalpha=kdensity(alpha.mcmc.mat)
+plot(yalpha,main="posterior of alpha")
+abline(v=coef(fit_garch)[2],col="green")
+abline(v=outputmcmcGARCH_CPIAUCSL$mean$alpha,col="blue")
 ```
