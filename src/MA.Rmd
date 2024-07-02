@@ -18,18 +18,11 @@ library("kdensity")
 Data loading and separation of the timeseries
 
 ```{r}
-# New Family Houses Sold: United States
-# Source: https://fred.stlouisfed.org/series/HSN1F
-
 # Load data
 data = read.csv("../Dataset/gdp_inflation.csv", header=T)
 data$DATE         = as.Date(data$DATE)
 data$GDP_PC1      = as.numeric(data$GDP_PC1)
 data$CPIAUCSL_PC1 = as.numeric(data$CPIAUCSL_PC1)
-sum(is.na(data$GDP_PC1))
-
-plot(data$DATE[1:305],data$GDP_PC1[1:305],type="l",xlab="",ylab="GDP",main="GDP+INFL")
-lines(data$DATE[1:305],data$CPIAUCSL_PC1[1:305],type="l",col="red")
 ```
 
 
@@ -48,9 +41,8 @@ acf(data$CPIAUCSL_PC1[1:305], main='Inflation ACF')
 modelMA.string <-"model {
 ## Parameters: alpha, tau, m0
   # Likelihood 
-  Y[1] ~ dnorm(mu[1], tau)
-  Yp[1] ~ dnorm(mu[1], tau)
-  mu[1] <- m0
+  Yp[1] <- mu[1]
+  mu[1] <- Y[1]
   eps[1] <- Y[1] - mu[1]
   for (i in 2:N) {
     Y[i] ~ dnorm(mu[i], tau)
@@ -71,8 +63,8 @@ modelMA.string <-"model {
   
   sigma2<-1/tau
   #prior 
-  theta ~ dunif(-1, 1)
-  tau ~ dgamma(0.1, 10)
+  theta ~ dunif(-1.0, 1.0)
+  tau ~ dgamma(2, 0.1)
   m0 ~ dnorm(0.0, 1.0E-4)
 }"
 ```
@@ -241,9 +233,8 @@ points(predict_infl$pred, type = "l", col = 'orange', lty = 2)
 modelMA_q2.string <-"model {
 ## Parameters: alpha, tau, m0
   # Likelihood 
-  Y[1] ~ dnorm(mu[1], tau)
-  Yp[1] ~ dnorm(mu[1], tau)
-  mu[1] <- m0
+  Yp[1] <- mu[1]
+  mu[1] <- Y[1]
   eps[1] <- Y[1] - mu[1]
   Y[2] ~ dnorm(mu[2], tau)
   Yp[2] ~ dnorm(mu[2], tau)
@@ -273,7 +264,7 @@ modelMA_q2.string <-"model {
   #prior 
   theta_1 ~ dunif(-1.5, 1.5)
   theta_2 ~ dunif(-1, 1)
-  tau ~ dgamma(0.1, 10)
+  tau ~ dgamma(2, 0.1)
   m0 ~ dnorm(0.0, 1.0E-4)
 }"
 ```
