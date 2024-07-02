@@ -150,7 +150,7 @@ points(MA_gdp_fit, type = "l", col = "red", lty = 2)
 legend("topright", legend = c("JAGS", "ARIMA"),
        col = c("blue", "red"), lty = 1)
 
-# Plot 2 (Posterior of alpha)
+# Plot 2 (Posterior of theta)
 theta.mcmc.mat=as.matrix(outputmcmcMA_GDP$samples[,c("theta")], iters = FALSE)
 ytheta=kdensity(theta.mcmc.mat)
 plot(ytheta,main="Posterior of theta")
@@ -213,6 +213,7 @@ points(MA_infl_fit, type = "l", col = "red", lty = 2)
 legend("topright", legend = c("JAGS", "ARIMA"),
        col = c("blue", "red"), lty = 1)
 
+# Plot 2 (Posterior of theta)
 theta.mcmc.mat=as.matrix(outputmcmcMA_CPIAUCSL$samples[,c("theta")], iters = FALSE)
 ytheta=kdensity(theta.mcmc.mat)
 plot(ytheta,main="Posterior of theta", xlim = c(0.8,1))
