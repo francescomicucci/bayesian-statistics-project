@@ -1,67 +1,35 @@
 ---
-title: "AR(1)"
+title: "AR"
 output: html_notebook
 ---
 
 ```{r}
+# Load libraries
 rm(list=ls())
 library(rjags)
 library(bayesplot)
 library(jagsUI)
-library("kdensity")
-
+library(kdensity)
 ```
 
-An AR(1) model is a time series model defined as follows. Starting 
-from $y_1$ one recursively define for $t \geq 1$
-\[
-y_{t+1}=\mu+\alpha y_t +\epsilon_t \qquad 
-\epsilon_t \stackrel{iid}{\sim} \mathcal{N}(0,\sigma^2)
-\]
-
-If $|\alpha| \leq 1$ the model is stationary and has a  stationary distribution.
-The stationary distribution is a normal distribution with
-mean $\mu_{stat}=\mu/(1-\alpha)$
-and variance $\sigma_{stat}^2=\sigma^2/(1-\alpha^2)$. 
-
-Note that for $\alpha=1$ we have a random walk (which is not stationary) and for $\alpha=0$ one obtains independent normal variables (white noise).
-
 ```{r}
-# New Family Houses Sold: United States
-# Source: https://fred.stlouisfed.org/series/HSN1F
-
 # Load data
 data = read.csv("../Dataset/gdp_inflation.csv", header=T)
 data$DATE         = as.Date(data$DATE)
 data$GDP_PC1      = as.numeric(data$GDP_PC1)
 data$CPIAUCSL_PC1 = as.numeric(data$CPIAUCSL_PC1)
-sum(is.na(data$GDP_PC1))
-
-plot(data$DATE[1:305],data$GDP_PC1[1:305],type="l",xlab="",ylab="GDP",main="GDP+INFL")
-lines(data$DATE[1:305],data$CPIAUCSL_PC1[1:305],type="l",col="red")
 ```
 
-The parameter of an AR(1) model are $\mu,\alpha$ and $\sigma$. 
-We assume the following prior
-\[
-\begin{split}
-& \alpha \sim \mathcal{N}(0.5,100)  \\
-& \mu \sim \mathcal{N}(0,1000)  \\
-& \tau = \frac{1}{\sigma^2} \sim \mathcal{G}(1,0.1)   \\
-\end{split}
-\]
-
-We write the model using Jags. Note that we add also some lines for prediction in sample 
-(the lines with Yp) and some for the prediction out of sample (ypOut). 
-
+### AR(1)
 ```{r}
+# Define model in JAGS
 modelAR.string <-"model {
   ## Parameters: alpha, tau, m0
   # Likelihood 
   mu[1] <- Y[1]
   Yp[1] <- mu[1]
   for (i in 2:N) {
-    Y[i] ~ dnorm(mu[i], tau)
+    Y[i]  ~ dnorm(mu[i], tau)
     mu[i] <- m0 + alpha * Y[i-1]
     Yp[i] ~ dnorm(mu[i],tau)      # Prediction in sample
   }
@@ -74,9 +42,9 @@ modelAR.string <-"model {
   sigma2 <- 1/tau
   
   # Prior 
-  alpha ~ dnorm(0.5, 1.0E-2)
-  tau ~ dgamma(1, 0.1)
-  m0 ~ dnorm(0.0, 1.0E-4)
+  alpha ~ dunif(-1.0, 1.0)
+  tau   ~ dgamma(2, 0.1)
+  m0    ~ dnorm(0.0, 1.0E-4)
 }"
 ```
 
@@ -92,14 +60,15 @@ line_data_GDP <- list("N" = N,
                       "Npred" = Npred,
                       "Y" = data_subsample$GDP_PC1)
 
+line_data_CPIAUCSL <- list("N" = N,
+                           "Npred" = Npred,
+                           "Y" = data_subsample$CPIAUCSL_PC1)
+
+# JAGS
 outputmcmcAR_GDP <- jags(model.file = textConnection(modelAR.string),
                          data = line_data_GDP,
                          parameters.to.save= c("alpha", "sigma2", "m0", "Yp", "ypOut"), 
                          n.adapt=1000, n.iter=1000, n.chains = 3, n.burnin = 100)
-
-line_data_CPIAUCSL <- list("N" = N,
-                           "Npred" = Npred,
-                           "Y" = data_subsample$CPIAUCSL_PC1)
 
 outputmcmcAR_CPIAUCSL <- jags(model.file = textConnection(modelAR.string),
                               data = line_data_CPIAUCSL,
@@ -108,127 +77,148 @@ outputmcmcAR_CPIAUCSL <- jags(model.file = textConnection(modelAR.string),
 ```
 
 ```{r}
+# Plots
 mcmc_trace(outputmcmcAR_GDP$samples, pars = c("alpha"))
 mcmc_areas(outputmcmcAR_GDP$samples, pars = c("alpha"),  prob = 0.95)
 mcmc_trace(outputmcmcAR_GDP$samples, pars = c("sigma2"))
 mcmc_areas(outputmcmcAR_GDP$samples, pars = c("sigma2"),  prob = 0.95)
+mcmc_trace(outputmcmcAR_GDP$samples, pars = c("m0"))
+mcmc_areas(outputmcmcAR_GDP$samples, pars = c("m0"),  prob = 0.95)
 
 autocorr.plot(outputmcmcAR_GDP$samples[,c("alpha")],main="alpha GDP")
 autocorr.plot(outputmcmcAR_GDP$samples[,c("sigma2")],main="sigma2 GDP")
+autocorr.plot(outputmcmcAR_GDP$samples[,c("m0")],main="m0 GDP")
 
 mcmc_trace(outputmcmcAR_CPIAUCSL$samples, pars = c("alpha"))
 mcmc_areas(outputmcmcAR_CPIAUCSL$samples, pars = c("alpha"),  prob = 0.95)
 mcmc_trace(outputmcmcAR_CPIAUCSL$samples, pars = c("sigma2"))
 mcmc_areas(outputmcmcAR_CPIAUCSL$samples, pars = c("sigma2"),  prob = 0.95)
+mcmc_trace(outputmcmcAR_CPIAUCSL$samples, pars = c("m0"))
+mcmc_areas(outputmcmcAR_CPIAUCSL$samples, pars = c("m0"),  prob = 0.95)
 
 autocorr.plot(outputmcmcAR_CPIAUCSL$samples[,c("alpha")],main="alpha CPIAUCSL")
 autocorr.plot(outputmcmcAR_CPIAUCSL$samples[,c("sigma2")],main="sigma2 CPIAUCSL")
+autocorr.plot(outputmcmcAR_CPIAUCSL$samples[,c("m0")],main="m0 CPIAUCSL")
 ```
 
 ```{r}
 t  = seq(1,Ntot)
 tt = seq(1,N)
 
-#
-yp=outputmcmcAR_GDP$mean$Yp
-q1=outputmcmcAR_GDP$q2.5$Yp
-q2=outputmcmcAR_GDP$q97.5$Yp
+yp      = outputmcmcAR_GDP$mean$Yp
+q1      = outputmcmcAR_GDP$q2.5$Yp
+q2      = outputmcmcAR_GDP$q97.5$Yp
+yp_pred = outputmcmcAR_GDP$mean$ypOut
+q1_pred = outputmcmcAR_GDP$q2.5$ypOut
+q2_pred = outputmcmcAR_GDP$q97.5$ypOut
 
-#
-plot(t, data$GDP_PC1, col="red",ylab="mu_t",
-     main="data (red), in samp.pred. (blue)")
+# Plot 1 (In-sample prediction)
+plot(t, data$GDP_PC1, col="red", ylab="mu_t", type="p",
+     main="Data (Red) vs In-sample preditction (Cyan)")
 lines(t, data$GDP_PC1,col="red")
-points(tt, yp,pch="*", col="blue")
-lines(tt, q1, type="l",col="blue", lwd = 1.5)
-lines(tt, q2, type="l",col="blue", lwd = 1.5)
+points(tt, yp,pch="*", col="cyan")
+lines(tt, q1, type="l",col="cyan", lwd = 1.5)
+lines(tt, q2, type="l",col="cyan", lwd = 1.5)
 
-#
-yp_pred=outputmcmcAR_GDP$mean$ypOut
-q1_pred=outputmcmcAR_GDP$q2.5$ypOut
-q2_pred=outputmcmcAR_GDP$q97.5$ypOut
-
-#
+# Plot 2 (Out-of-sample prediction)
 plot(t, data$GDP_PC1, col="red", ylab="mu_t", ylim=c(min(q1_pred),max(q2_pred)),
-     main= "out-of-sample prediction (orange)")
+     main= "Out-of-sample prediction (orange)")
 abline(v=N,col="orange")
-lines(tt, yp, type="p", pch="*", col="blue",)
-lines(tt, q1, type="l", col="blue", lwd = 1.5)
-lines(tt, q2, type="l", col="blue", lwd = 1.5)
+lines(tt, yp, type="p", pch="*", col="cyan",)
+lines(tt, q1, type="l", col="cyan", lwd = 1.5)
+lines(tt, q2, type="l", col="cyan", lwd = 1.5)
 points(seq((N+1),Ntot,1),pch="*",yp_pred,col="orange")
 lines(seq((N+1),Ntot,1),q1_pred,col="orange",lwd = 1.5)
 lines(seq((N+1),Ntot,1),q2_pred,col="orange",lwd = 1.5)
 ```
 
 ```{r}
-AR_gdp <- arima(data$GDP [1:275], order = c(1,0,0))
+# AR model using arima function
+AR_gdp     <- arima(data_subsample$GDP_PC1, order = c(1,0,0))
+AR_gdp_fit <- data_subsample$GDP_PC1 - residuals(AR_gdp)
 print(AR_gdp)
-AR_gdp_fit <- data$GDP [1:275] - residuals(AR_gdp)
-plot(tt, yp, type="p", pch="*", col="blue",)
-points(AR_gdp_fit, type = "l", col = 2, lty = 2)
 
+# Plot 1 (JAGS vs AR using arima)
+plot(tt, yp, type="p", pch="*", col="blue", main="JAGS vs ARIMA",
+     xlab="Time", ylab="y_p")
+points(AR_gdp_fit, type = "l", col = "red", lty = 2)
+legend("topright", legend = c("JAGS", "ARIMA"),
+       col = c("blue", "red"), lty = 1)
+
+# Plot 2 (Posterior of alpha)
 alpha.mcmc.mat=as.matrix(outputmcmcAR_GDP$samples[,c("alpha")], iters = FALSE)
 yalpha=kdensity(alpha.mcmc.mat)
-plot(yalpha,main="posterior of alpha")
-abline(v=AR_gdp$coef[1],col="green")
+plot(yalpha, main="Posterior of alpha")
 abline(v=outputmcmcAR_GDP$mean$alpha,col="blue")
+abline(v=AR_gdp$coef[1],col="red")
+legend("topright", legend = c("JAGS", "ARIMA"),
+       col = c("blue", "red"), lty = 1)
 
+# Plot 3 (Prediction ARIMA)
 predict_gdp <- predict(AR_gdp, n.ahead=30)
 predict_gdp$pred
-ts.plot(data$GDP_PC1)
+ts.plot(data$GDP_PC, ylab="y_t", main="ARIMA vs True data")
 points(AR_gdp_fit, type = "l", col = 2, lty = 2)
-points(predict_gdp$pred, type = "l", col = 'orange', lty = 2)
+points(predict_gdp$pred, type = "l", col = 'green2', lty = 2)
 ```
 
 ```{r}
 t  = seq(1,Ntot)
 tt = seq(1,N)
 
-#
 yp=outputmcmcAR_CPIAUCSL$mean$Yp
 q1=outputmcmcAR_CPIAUCSL$q2.5$Yp
 q2=outputmcmcAR_CPIAUCSL$q97.5$Yp
-
-#
-plot(t, data$CPIAUCSL_PC1, col="red",ylab="mu_t",
-     main="data (red), in samp.pred. (blue)")
-lines(t, data$CPIAUCSL_PC1,col="red")
-points(tt, yp,pch="*", col="blue")
-lines(tt, q1, type="l",col="blue", lwd = 1.5)
-lines(tt, q2, type="l",col="blue", lwd = 1.5)
-
-#
 yp_pred=outputmcmcAR_CPIAUCSL$mean$ypOut
 q1_pred=outputmcmcAR_CPIAUCSL$q2.5$ypOut
 q2_pred=outputmcmcAR_CPIAUCSL$q97.5$ypOut
 
-#
+# Plot 1 (In-sample prediction)
+plot(t, data$CPIAUCSL_PC1, col="red", ylab="mu_t", type="p",
+     main="Data (Red) vs In-sample preditction (Cyan)")
+lines(t, data$CPIAUCSL_PC1,col="red")
+points(tt, yp,pch="*", col="cyan")
+lines(tt, q1, type="l",col="cyan", lwd = 1.5)
+lines(tt, q2, type="l",col="cyan", lwd = 1.5)
+
+# Plot 2 (Out-of-sample prediction)
 plot(t, data$CPIAUCSL_PC1, col="red", ylab="mu_t", ylim=c(min(q1_pred),max(q2_pred)),
-     main= "out-of-sample prediction (orange)")
+     main= "Out-of-sample prediction (orange)")
 abline(v=N,col="orange")
-lines(tt, yp, type="p", pch="*", col="blue",)
-lines(tt, q1, type="l", col="blue", lwd = 1.5)
-lines(tt, q2, type="l", col="blue", lwd = 1.5)
+lines(tt, yp, type="p", pch="*", col="cyan",)
+lines(tt, q1, type="l", col="cyan", lwd = 1.5)
+lines(tt, q2, type="l", col="cyan", lwd = 1.5)
 points(seq((N+1),Ntot,1),pch="*",yp_pred,col="orange")
 lines(seq((N+1),Ntot,1),q1_pred,col="orange",lwd = 1.5)
 lines(seq((N+1),Ntot,1),q2_pred,col="orange",lwd = 1.5)
 ```
 
 ```{r}
-AR_infl <- arima(data$CPIAUCSL_PC1 [1:275], order = c(1,0,0))
+# AR model using arima function
+AR_infl     <- arima(data_subsample$CPIAUCSL_PC1, order = c(1,0,0))
+AR_infl_fit <- data_subsample$CPIAUCSL_PC1 - residuals(AR_infl)
 print(AR_infl)
-AR_infl_fit <- data$CPIAUCSL_PC1 [1:275] - residuals(AR_infl)
-plot(tt, yp, type="p", pch="*", col="blue",)
-points(AR_infl_fit, type = "l", col = 2, lty = 2)
 
+# Plot 1 (JAGS vs AR using arima)
+plot(tt, yp, type="p", pch="*", col="blue", main="JAGS vs ARIMA",
+     xlab="Time", ylab="y_p")
+points(AR_infl_fit, type = "l", col = "red", lty = 2)
+legend("topright", legend = c("JAGS", "ARIMA"),
+       col = c("blue", "red"), lty = 1)
+
+# Plot 2 (Posterior of alpha)
 alpha.mcmc.mat=as.matrix(outputmcmcAR_CPIAUCSL$samples[,c("alpha")], iters = FALSE)
 yalpha=kdensity(alpha.mcmc.mat)
-plot(yalpha,main="posterior of alpha")
-abline(v=AR_infl$coef[1],col="green")
+plot(yalpha, main="Posterior of alpha")
 abline(v=outputmcmcAR_CPIAUCSL$mean$alpha,col="blue")
+abline(v=AR_infl$coef[1],col="red")
+legend("topright", legend = c("JAGS", "ARIMA"),
+       col = c("blue", "red"), lty = 1)
 
+# Plot 3 (Prediction ARIMA)
 predict_infl <- predict(AR_infl, n.ahead=30)
 predict_infl$pred
-ts.plot(data$CPIAUCSL_PC1)
+ts.plot(data$CPIAUCSL_PC1, ylab="y_t", main="ARIMA vs True data")
 points(AR_infl_fit, type = "l", col = 2, lty = 2)
-points(predict_infl$pred, type = "l", col = 'orange', lty = 2)
+points(predict_infl$pred, type = "l", col = 'green2', lty = 2)
 ```
