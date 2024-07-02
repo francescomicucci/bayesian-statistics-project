@@ -24,61 +24,6 @@ data$CPIAUCSL_PC1 = as.numeric(data$CPIAUCSL_PC1)
 ### VAR(1)
 ```{r}
 # Define model in JAGS
-# modelVAR.string <-"model {
-#  ## Parameters: alpha, tau, m0
-#   # Likelihood
-#   Y[1,1]   ~ dnorm(mu[1,1], tau[1])
-#   Y[2,1]   ~ dnorm(mu[2,1], tau[2])
-#   Yp[1,1]  ~ dnorm(mu[1,1], tau[1])      # Prediction in sample
-#   Yp[2,1]  ~ dnorm(mu[2,1], tau[2])      # Prediction in sample   
-#   mu[1,1]  <- m0[1]
-#   mu[2,1] <- m0[2]
-  
-#   for (i in 2:N) {
-#     Y[1,i]   ~ dnorm(mu[1,i], tau[1])
-#     Y[2,i]   ~ dnorm(mu[2,i], tau[2])
-#     Yp[1,i]  ~ dnorm(mu[1,i], tau[1])      # Prediction in sample
-#     Yp[2,i]  ~ dnorm(mu[2,i], tau[2])      # Prediction in sample   
-#     mu[1,i]  <- m0[1] + alpha[1,1] * Y[1,i-1] + alpha[1,2] * Y[2,i-1]
-#     mu[2,i] <- m0[2] + alpha[2,1] * Y[1,i-1] + alpha[2,2] * Y[2,i-1]
-#   }
-  
-  # Prediction out of sample 
-#   ypOut[1,1]  ~ dnorm(muOut[1,1], tau[1])
-#   muOut[1,1]  <- m0[1] + alpha[1,1] * Y[1,N] + alpha[1,2] * Y[2,N]
-#   ypOut[2,1]  ~ dnorm(muOut[2,1], tau[2])
-#   muOut[2,1]  <- m0[2] + alpha[2,1] * Y[1,N] + alpha[2,2] * Y[2,N]
-#   for (k in 2:Npred) {
-#     ypOut[1,k]  ~ dnorm(muOut[1,k], tau[1])
-#     muOut[1,k]  <- m0[1] + alpha[1,1] * ypOut[1,k-1] + alpha[1,2] * ypOut[2,k-1]
-#     ypOut[2,k]  ~ dnorm(muOut[2,k], tau[2])
-#     muOut[2,k]  <- m0[2] + alpha[2,1] * ypOut[1,k-1] + alpha[2,2] * ypOut[2,k-1]
-#   }
-  
-#   sigma2[1] <- 1/tau[1]
-#   sigma2[2] <- 1/tau[2]
-  
-  # Prior 
-  
-#   for(l in 1:2){
-#     for(j in 1:2){
-#     alpha[l,j] ~ dunif(-1, 1)
-#     }
-#   }
-  
-#   for(h in 1:2){
-#     tau[h]   ~ dgamma(2, 0.1)
-#   }
-  
-#   for(m in 1:2){
-#     m0[m]  ~ dnorm(0.0, 1.0E-4)
-#   }
-
-# }"
-```
-
-```{r}
-# Define model in JAGS
 modelVAR.string <-"model {
   # Likelihood
   Yp[1:2, 1] <- Y[1:2, 1]
