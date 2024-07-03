@@ -119,24 +119,18 @@ yp_pred = outputmcmcARMA_GDP$mean$ypOut
 q1_pred = outputmcmcARMA_GDP$q2.5$ypOut
 q2_pred = outputmcmcARMA_GDP$q97.5$ypOut
 
-# Plot 1 (In-sample prediction)
-plot(t, data$GDP_PC1, col="red", ylab="mu_t", type="p",
-     main="Data (Red) vs In-sample preditction (Cyan)")
-lines(t, data$GDP_PC1,col="red")
-points(tt, yp,pch="*", col="cyan")
-lines(tt, q1, type="l",col="cyan", lwd = 1.5)
-lines(tt, q2, type="l",col="cyan", lwd = 1.5)
-
-# Plot 2 (Out-of-sample prediction)
-plot(t, data$GDP_PC1, col="red", ylab="mu_t", ylim=c(min(q1_pred),max(q2_pred)),
-     main= "Out-of-sample prediction (orange)")
-abline(v=N,col="orange")
-lines(tt, yp, type="p", pch="*", col="cyan",)
-lines(tt, q1, type="l", col="cyan", lwd = 1.5)
-lines(tt, q2, type="l", col="cyan", lwd = 1.5)
-points(seq((N+1),Ntot,1),pch="*",yp_pred,col="orange")
-lines(seq((N+1),Ntot,1),q1_pred,col="orange",lwd = 1.5)
-lines(seq((N+1),Ntot,1),q2_pred,col="orange",lwd = 1.5)
+# Plot
+plot(t, data$GDP_PC1, col="black", ylab="mu_t", ylim=c(-7.0, 24),
+     type="l", main= "Prediction GDP_PC1")
+points(tt, yp, pch="*", col="red")
+polygon(c(tt, rev(tt)), c(q1, rev(q2)), col = rgb(1, 0, 0, 0.3), border = NA)
+points(seq((N+1),Ntot,1), pch="*", yp_pred, col="blue")
+polygon(c(seq((N+1),Ntot,1), rev(seq((N+1),Ntot,1))), 
+        c(q1_pred, rev(q2_pred)), col = rgb(0, 0, 1, 0.3), border = NA)
+legend("topright", lty = 0, bty="n", cex=0.8, pch = 19,
+       xpd=TRUE, inset=c(0.005,0),
+       legend = c("Dataset", "In-sample preditction", "Out-of-sample prediction"), 
+       col = c("black", "red", "blue"))
 ```
 
 ```{r}
@@ -188,20 +182,18 @@ yp_pred = outputmcmcARMA_CPIAUCSL$mean$ypOut
 q1_pred = outputmcmcARMA_CPIAUCSL$q2.5$ypOut
 q2_pred = outputmcmcARMA_CPIAUCSL$q97.5$ypOut
 
-# Plot 1 (In-sample prediction)
-plot(t, data$CPIAUCSL_PC1, col="black", ylab="mu_t", type="l",
-     main="Data (Black) vs In-sample preditction (Red)")
-points(tt, yp,pch="*", col="red")
-polygon(c(tt, rev(tt)), c(q1, rev(q2)), col = rgb(1, 0, 0, 0.3), border = NA)
-
-# Plot 2 (Out-of-sample prediction)
-plot(t, data$CPIAUCSL_PC1, col="black", ylab="mu_t", ylim=c(min(q1_pred),max(q2_pred)),
-     type="l", main= "Out-of-sample prediction (Blue)")
+# Plot
+plot(t, data$CPIAUCSL_PC1, col="black", ylab="mu_t", ylim=c(-7.0, 17),
+     type="l", main= "Prediction CPIAUCSL_PC1")
 points(tt, yp, pch="*", col="red")
 polygon(c(tt, rev(tt)), c(q1, rev(q2)), col = rgb(1, 0, 0, 0.3), border = NA)
 points(seq((N+1),Ntot,1), pch="*", yp_pred, col="blue")
 polygon(c(seq((N+1),Ntot,1), rev(seq((N+1),Ntot,1))), 
         c(q1_pred, rev(q2_pred)), col = rgb(0, 0, 1, 0.3), border = NA)
+legend("topright", lty = 0, bty="n", cex=0.8, pch = 19,
+       xpd=TRUE, inset=c(0.005,0),
+       legend = c("Dataset", "In-sample preditction", "Out-of-sample prediction"), 
+       col = c("black", "red", "blue"))
 ```
 
 ```{r}
