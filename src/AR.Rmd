@@ -10,6 +10,7 @@ library(rjags)
 library(bayesplot)
 library(jagsUI)
 library(kdensity)
+library(loo)
 ```
 
 ```{r}
@@ -27,11 +28,12 @@ modelAR.string <-"model {
   ## Parameters: alpha, tau, m0
   # Likelihood 
   mu[1] <- Y[1]
-  Yp[1] <- mu[1]
+  Yp[1] <- Y[1]
   for (i in 2:N) {
-    Y[i]  ~ dnorm(mu[i], tau)
-    mu[i] <- m0 + alpha * Y[i-1]
-    Yp[i] ~ dnorm(mu[i],tau)      # Prediction in sample
+    Y[i]      ~  dnorm(mu[i], tau)
+    mu[i]     <- m0 + alpha * Y[i-1]
+    Yp[i]     ~  dnorm(mu[i],tau)      # Prediction in sample
+    LogLik[i] <- log(dnorm(Y[i], mu[i], tau)) 
   }
   
   # Prediction out of sample 
@@ -67,13 +69,26 @@ line_data_CPIAUCSL <- list("N" = N,
 # JAGS
 outputmcmcAR_GDP <- jags(model.file = textConnection(modelAR.string),
                          data = line_data_GDP,
-                         parameters.to.save= c("alpha", "sigma2", "m0", "Yp", "ypOut"), 
+                         parameters.to.save= c("alpha", "sigma2", "m0", "Yp", "ypOut", "LogLik"), 
                          n.adapt=1000, n.iter=1000, n.chains = 3, n.burnin = 100)
 
 outputmcmcAR_CPIAUCSL <- jags(model.file = textConnection(modelAR.string),
                               data = line_data_CPIAUCSL,
-                              parameters.to.save= c("alpha", "sigma2", "m0", "Yp", "ypOut"), 
+                              parameters.to.save= c("alpha", "sigma2", "m0", "Yp", "ypOut", "LogLik"), 
                               n.adapt=1000, n.iter=1000, n.chains = 3, n.burnin = 100)
+```
+
+```{r}
+# WAIC, DIC
+WAIC_GDP <- waic(outputmcmcAR_GDP$sims.list$LogLik[,-1])
+DIC_GDP  <- outputmcmcAR_GDP$DIC
+WAIC_GDP
+DIC_GDP
+
+WAIC_CPIAUCSL <- waic(outputmcmcAR_CPIAUCSL$sims.list$LogLik[,-1])
+DIC_CPIAUCSL  <- outputmcmcAR_CPIAUCSL$DIC
+WAIC_CPIAUCSL
+DIC_CPIAUCSL
 ```
 
 ```{r}

@@ -10,6 +10,7 @@ library(rjags)
 library(bayesplot)
 library(jagsUI)
 library(rugarch)
+library(loo)
 ```
 
 ```{r}
@@ -37,6 +38,7 @@ modelGARCH.string <-"model {
     tau[i]    <- 1 / sigma2[i]
     sigma2[i] <- a[1] + a[2] * eps2[i-1] + a[3] * sigma2[i-1]
     eps2[i]   <- (Y[i] - mu[i]) * (Y[i] - mu[i])
+    LogLik[i] <- log(dnorm(Y[i], mu[i], tau[i])) 
   }
   
   # Prediction out of sample 
@@ -81,13 +83,26 @@ line_data_CPIAUCSL <- list("N" = N,
 # JAGS
 outputmcmcGARCH_GDP <- jags(model.file = textConnection(modelGARCH.string),
                          data = line_data_GDP,
-                         parameters.to.save= c("a", "alpha", "sigma2", "m0", "Yp", "ypOut"), 
+                         parameters.to.save= c("a", "alpha", "sigma2", "m0", "Yp", "ypOut", "LogLik"), 
                          n.adapt=1000, n.iter=10000, n.chains = 3, n.burnin = 1000)
 
 outputmcmcGARCH_CPIAUCSL <- jags(model.file = textConnection(modelGARCH.string),
                               data = line_data_CPIAUCSL,
-                              parameters.to.save= c("a", "alpha", "sigma2", "m0", "Yp", "ypOut"), 
+                              parameters.to.save= c("a", "alpha", "sigma2", "m0", "Yp", "ypOut", "LogLik"), 
                               n.adapt=1000, n.iter=10000, n.chains = 3, n.burnin = 1000)
+```
+
+```{r}
+# WAIC, DIC
+WAIC_GDP <- waic(outputmcmcGARCH_GDP$sims.list$LogLik[,-1])
+DIC_GDP  <- outputmcmcGARCH_GDP$DIC
+WAIC_GDP
+DIC_GDP
+
+WAIC_CPIAUCSL <- waic(outputmcmcGARCH_CPIAUCSL$sims.list$LogLik[,-1])
+DIC_CPIAUCSL  <- outputmcmcGARCH_CPIAUCSL$DIC
+WAIC_CPIAUCSL
+DIC_CPIAUCSL
 ```
 
 ```{r}

@@ -11,6 +11,7 @@ library(bayesplot)
 library(jagsUI)
 library(kdensity)
 library(vars)
+library(loo)
 ```
 
 ```{r}
@@ -33,6 +34,7 @@ modelVAR.string <-"model {
     Yp[1:2, i] ~ dmnorm(mu[1:2, i], tau[1:2, 1:2])   # Prediction in sample 
     mu[1,i]    <- m0[1] + alpha[1,1] * Y[1,i-1] + alpha[1,2] * Y[2,i-1]
     mu[2,i]    <- m0[2] + alpha[2,1] * Y[1,i-1] + alpha[2,2] * Y[2,i-1]
+    LogLik[i]  <- logdensity.mnorm(Y[1:2, i], mu[1:2, i], tau[1:2, 1:2])
   }
   
   # Prediction out of sample 
@@ -81,8 +83,16 @@ line_data <- list("N" = N,
 # JAGS
 outputmcmcVAR <- jags(model.file = textConnection(modelVAR.string),
                       data = line_data,
-                      parameters.to.save= c("alpha", "cov.matrix", "m0", "Yp", "ypOut"), 
+                      parameters.to.save= c("alpha", "cov.matrix", "m0", "Yp", "ypOut", "LogLik"), 
                       n.adapt=500, n.iter=3000, n.chains = 3, n.burnin = 500)
+```
+
+```{r}
+# WAIC, DIC
+WAIC <- waic(outputmcmcVAR$sims.list$LogLik[,-1])
+DIC  <- outputmcmcVAR$DIC
+WAIC
+DIC
 ```
 
 ```{r}

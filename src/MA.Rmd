@@ -10,8 +10,8 @@ rm(list=ls())
 library(rjags)
 library(bayesplot)
 library(jagsUI)
-library("kdensity")
-
+library(kdensity)
+library(loo)
 ```
 
 ```{r}
@@ -36,6 +36,7 @@ modelMA.string <-"model {
     mu[i]  <- m0 + theta * eps[i-1]
     eps[i] <- Y[i] - mu[i]
     Yp[i]  ~  dnorm(mu[i], tau) 
+    LogLik[i] <- log(dnorm(Y[i], mu[i], tau)) 
   }
   
   # prediction out of sample 
@@ -74,15 +75,26 @@ line_data_CPIAUCSL <- list("N" = N,
 # JAGS
 outputmcmcMA_GDP <- jags(model.file = textConnection(modelMA.string),
                          data = line_data_GDP,
-                         parameters.to.save= c("theta", "sigma2", "eps", "m0", "Yp", "ypOut"), 
+                         parameters.to.save= c("theta", "sigma2", "eps", "m0", "Yp", "ypOut", "LogLik"), 
                          n.adapt=1000, n.iter=10000, n.chains = 3, n.burnin = 3000)
 
 outputmcmcMA_CPIAUCSL <- jags(model.file = textConnection(modelMA.string),
                               data = line_data_CPIAUCSL,
-                              parameters.to.save= c("theta", "sigma2", "eps", "m0", "Yp", "ypOut"), 
+                              parameters.to.save= c("theta", "sigma2", "eps", "m0", "Yp", "ypOut", "LogLik"), 
                               n.adapt=1000, n.iter=10000, n.chains = 3, n.burnin = 3000)
+```
 
+```{r}
+# WAIC, DIC
+WAIC_GDP <- waic(outputmcmcMA_GDP$sims.list$LogLik[,-1])
+DIC_GDP  <- outputmcmcMA_GDP$DIC
+WAIC_GDP
+DIC_GDP
 
+WAIC_CPIAUCSL <- waic(outputmcmcMA_CPIAUCSL$sims.list$LogLik[,-1])
+DIC_CPIAUCSL  <- outputmcmcMA_CPIAUCSL$DIC
+WAIC_CPIAUCSL
+DIC_CPIAUCSL
 ```
 
 ```{r}
@@ -235,6 +247,7 @@ modelMA_q2.string <-"model {
     mu[i] <- m0 + theta_1 * eps[i-1] + theta_2 * eps[i-2]
     eps[i] <- Y[i] - mu[i]
     Yp[i] ~ dnorm(mu[i], tau) 
+    LogLik[i] <- log(dnorm(Y[i], mu[i], tau)) 
   }
   
   # prediction out of sample 
@@ -278,13 +291,26 @@ line_data_CPIAUCSL <- list("N" = N,
 # JAGS
 outputmcmcMA_GDP <- jags(model.file = textConnection(modelMA_q2.string),
                          data = line_data_GDP,
-                         parameters.to.save= c("theta_1", "theta_2", "sigma2", "eps", "m0", "Yp", "ypOut"), 
+                         parameters.to.save= c("theta_1", "theta_2", "sigma2", "eps", "m0", "Yp", "ypOut", "LogLik"), 
                          n.adapt=1000, n.iter=10000, n.chains = 3, n.burnin = 3000)
 
 outputmcmcMA_CPIAUCSL <- jags(model.file = textConnection(modelMA_q2.string),
                               data = line_data_CPIAUCSL,
-                              parameters.to.save= c("theta_1", "theta_2", "sigma2", "eps", "m0", "Yp", "ypOut"), 
+                              parameters.to.save= c("theta_1", "theta_2", "sigma2", "eps", "m0", "Yp", "ypOut", "LogLik"), 
                               n.adapt=1000, n.iter=10000, n.chains = 3, n.burnin = 3000)
+```
+
+```{r}
+# WAIC, DIC
+WAIC_GDP <- waic(outputmcmcMA_GDP$sims.list$LogLik[,-c(1,2)])
+DIC_GDP  <- outputmcmcMA_GDP$DIC
+WAIC_GDP
+DIC_GDP
+
+WAIC_CPIAUCSL <- waic(outputmcmcMA_CPIAUCSL$sims.list$LogLik[,-c(1,2)])
+DIC_CPIAUCSL  <- outputmcmcMA_CPIAUCSL$DIC
+WAIC_CPIAUCSL
+DIC_CPIAUCSL
 ```
 
 ```{r}
