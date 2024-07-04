@@ -32,19 +32,19 @@ modelVAR.string <-"model {
   for (i in 2:N) {
     Y[1:2, i]  ~ dmnorm(mu[1:2, i], tau[1:2, 1:2])
     Yp[1:2, i] ~ dmnorm(mu[1:2, i], tau[1:2, 1:2])   # Prediction in sample 
-    mu[1,i]    <- m0[1] + alpha[1,1] * Y[1,i-1] + alpha[1,2] * Y[2,i-1]
-    mu[2,i]    <- m0[2] + alpha[2,1] * Y[1,i-1] + alpha[2,2] * Y[2,i-1]
+    mu[1,i]    <- mu0[1] + alpha[1,1] * Y[1,i-1] + alpha[1,2] * Y[2,i-1]
+    mu[2,i]    <- mu0[2] + alpha[2,1] * Y[1,i-1] + alpha[2,2] * Y[2,i-1]
     LogLik[i]  <- logdensity.mnorm(Y[1:2, i], mu[1:2, i], tau[1:2, 1:2])
   }
   
   # Prediction out of sample 
   ypOut[1:2, 1]  ~ dmnorm(muOut[1:2, 1], tau[1:2, 1:2])
-  muOut[1,1]     <- m0[1] + alpha[1,1] * Y[1,N] + alpha[1,2] * Y[2,N]
-  muOut[2,1]     <- m0[2] + alpha[2,1] * Y[1,N] + alpha[2,2] * Y[2,N]
+  muOut[1,1]     <- mu0[1] + alpha[1,1] * Y[1,N] + alpha[1,2] * Y[2,N]
+  muOut[2,1]     <- mu0[2] + alpha[2,1] * Y[1,N] + alpha[2,2] * Y[2,N]
   for (k in 2:Npred) {
     ypOut[1:2, k] ~ dmnorm(muOut[1:2, k], tau[1:2, 1:2])
-    muOut[1,k]    <- m0[1] + alpha[1,1] * ypOut[1,k-1] + alpha[1,2] * ypOut[2,k-1]
-    muOut[2,k]    <- m0[2] + alpha[2,1] * ypOut[1,k-1] + alpha[2,2] * ypOut[2,k-1]
+    muOut[1,k]    <- mu0[1] + alpha[1,1] * ypOut[1,k-1] + alpha[1,2] * ypOut[2,k-1]
+    muOut[2,k]    <- mu0[2] + alpha[2,1] * ypOut[1,k-1] + alpha[2,2] * ypOut[2,k-1]
   }
   
   cov.matrix <- inverse(tau)
@@ -54,7 +54,7 @@ modelVAR.string <-"model {
     for(h in 1:2) {
       alpha[j, h] ~ dunif(-1, 1)
     }
-    m0[j]  ~ dnorm(0.0, 1.0E-4)
+    mu0[j]  ~ dnorm(0.0, 1.0E-4)
   }
   
   tau ~ dwish(R,k)
@@ -83,8 +83,8 @@ line_data <- list("N" = N,
 # JAGS
 outputmcmcVAR <- jags(model.file = textConnection(modelVAR.string),
                       data = line_data,
-                      parameters.to.save= c("alpha", "cov.matrix", "m0", "Yp", "ypOut", "LogLik"), 
-                      n.adapt=500, n.iter=3000, n.chains = 3, n.burnin = 500)
+                      parameters.to.save= c("alpha", "cov.matrix", "mu0", "Yp", "ypOut", "LogLik"), 
+                      n.adapt=1000, n.iter=10000, n.chains = 1, n.burnin = 1000)
 ```
 
 ```{r}
@@ -96,22 +96,33 @@ DIC
 ```
 
 ```{r}
-# Plots
-mcmc_trace(outputmcmcVAR$samples, pars = c("alpha[1,1]"))
-mcmc_areas(outputmcmcVAR$samples, pars = c("alpha[1,1]"),  prob = 0.95)
-mcmc_trace(outputmcmcVAR$samples, pars = c("alpha[1,2]"))
-mcmc_areas(outputmcmcVAR$samples, pars = c("alpha[1,2]"),  prob = 0.95)
-mcmc_trace(outputmcmcVAR$samples, pars = c("alpha[2,1]"))
-mcmc_areas(outputmcmcVAR$samples, pars = c("alpha[2,1]"),  prob = 0.95)
-mcmc_trace(outputmcmcVAR$samples, pars = c("alpha[2,2]"))
-mcmc_areas(outputmcmcVAR$samples, pars = c("alpha[2,2]"),  prob = 0.95)
-mcmc_trace(outputmcmcVAR$samples, pars = c("cov.matrix[1,1]"))
-mcmc_areas(outputmcmcVAR$samples, pars = c("cov.matrix[1,1]"),  prob = 0.95)
-mcmc_trace(outputmcmcVAR$samples, pars = c("cov.matrix[2,2]"))
-mcmc_areas(outputmcmcVAR$samples, pars = c("cov.matrix[2,2]"),  prob = 0.95)
-mcmc_trace(outputmcmcVAR$samples, pars = c("cov.matrix[1,2]"))
-mcmc_areas(outputmcmcVAR$samples, pars = c("cov.matrix[1,2]"),  prob = 0.95)
+# Plot 1
+p1 <- mcmc_areas(outputmcmcVAR$samples, pars = c("mu0[1]"),  prob = 0.95)
+p2 <- mcmc_areas(outputmcmcVAR$samples, pars = c("mu0[2]"),  prob = 0.95)
+p3 <- mcmc_areas(outputmcmcVAR$samples, pars = c("alpha[1,1]"),  prob = 0.95)
+p4 <- mcmc_areas(outputmcmcVAR$samples, pars = c("alpha[1,2]"),  prob = 0.95)
+p5 <- mcmc_areas(outputmcmcVAR$samples, pars = c("alpha[2,1]"),  prob = 0.95)
+p6 <- mcmc_areas(outputmcmcVAR$samples, pars = c("alpha[2,2]"),  prob = 0.95)
+p7 <- mcmc_areas(outputmcmcVAR$samples, pars = c("cov.matrix[1,1]"),  prob = 0.95)
+p8 <- mcmc_areas(outputmcmcVAR$samples, pars = c("cov.matrix[2,2]"),  prob = 0.95)
+p9 <- mcmc_areas(outputmcmcVAR$samples, pars = c("cov.matrix[1,2]"),  prob = 0.95)
+grid.arrange(p1, p2, p3, p4, p5, p6, p7, p8, p9, ncol=3, nrow=3, top="Posterior distributions")
 
+# Plot 2
+p1 <- mcmc_trace(outputmcmcVAR$samples, pars = c("mu0[1]"))
+p2 <- mcmc_trace(outputmcmcVAR$samples, pars = c("mu0[2]"))
+p3 <- mcmc_trace(outputmcmcVAR$samples, pars = c("alpha[1,1]"))
+p4 <- mcmc_trace(outputmcmcVAR$samples, pars = c("alpha[1,2]"))
+p5 <- mcmc_trace(outputmcmcVAR$samples, pars = c("alpha[2,1]"))
+p6 <- mcmc_trace(outputmcmcVAR$samples, pars = c("alpha[2,2]"))
+p7 <- mcmc_trace(outputmcmcVAR$samples, pars = c("cov.matrix[1,1]"))
+p8 <- mcmc_trace(outputmcmcVAR$samples, pars = c("cov.matrix[2,2]"))
+p9 <- mcmc_trace(outputmcmcVAR$samples, pars = c("cov.matrix[1,2]"))
+grid.arrange(p1, p2, p3, p4, p5, p6, p7, p8, p9, ncol=3, nrow=3, top="Trace plots")
+
+# Plot 3
+autocorr.plot(outputmcmcVAR$samples[,c("mu0[1]")],main="mu0[1]")
+autocorr.plot(outputmcmcVAR$samples[,c("mu0[2]")],main="mu0[2]")
 autocorr.plot(outputmcmcVAR$samples[,c("alpha[1,1]")],main="alpha_11")
 autocorr.plot(outputmcmcVAR$samples[,c("alpha[1,2]")],main="alpha_12")
 autocorr.plot(outputmcmcVAR$samples[,c("alpha[2,1]")],main="alpha_21")

@@ -25,7 +25,7 @@ data$CPIAUCSL_PC1 = as.numeric(data$CPIAUCSL_PC1)
 ```{r}
 # Define model in JAGS
 modelARMA.string <-"model {
-  ## Parameters: alpha, tau, m0
+  ## Parameters: alpha, tau, mu0
   # Likelihood
   Yp[1]  <- mu[1]
   mu[1]  <- Y[1]
@@ -33,18 +33,18 @@ modelARMA.string <-"model {
   for (i in 2:N) {
     Y[i]   ~ dnorm(mu[i], tau)
     Yp[i]  ~ dnorm(mu[i], tau)      # Prediction in sample
-    mu[i]  <- m0 + alpha * Y[i-1] + theta * eps[i-1]
+    mu[i]  <- mu0 + alpha * Y[i-1] + theta * eps[i-1]
     eps[i] <- Y[i] - mu[i]
     LogLik[i] <- log(dnorm(Y[i], mu[i], tau)) 
   }
   
   # Prediction out of sample 
   ypOut[1]  ~ dnorm(muOut[1], tau)
-  muOut[1]  <- m0 + alpha * Y[N] + theta * eps[N]
+  muOut[1]  <- mu0 + alpha * Y[N] + theta * eps[N]
   epsOut[1] <- ypOut[1] - muOut[1]
   for (k in 2:Npred) {
     ypOut[k] ~ dnorm(muOut[k], tau) 
-    muOut[k] <- m0 + alpha * ypOut[k-1] + theta * epsOut[k-1]
+    muOut[k] <- mu0 + alpha * ypOut[k-1] + theta * epsOut[k-1]
     epsOut[k] <- ypOut[k] - muOut[k]
   }
   
@@ -54,7 +54,7 @@ modelARMA.string <-"model {
   alpha ~ dunif(-1, 1)
   theta ~ dunif(-1, 1)
   tau ~ dgamma(2, 0.1)
-  m0    ~ dnorm(0.0, 1.0E-4)
+  mu0    ~ dnorm(0.0, 1.0E-4)
 }"
 ```
 
@@ -76,13 +76,13 @@ line_data_CPIAUCSL <- list("N" = N,
 # JAGS
 outputmcmcARMA_GDP <- jags(model.file = textConnection(modelARMA.string),
                          data = line_data_GDP,
-                         parameters.to.save= c("alpha", "theta", "sigma2", "m0", "Yp", "ypOut", "LogLik"), 
-                         n.adapt=1000, n.iter=10000, n.chains = 3, n.burnin = 1000)
+                         parameters.to.save= c("alpha", "theta", "sigma2", "mu0", "Yp", "ypOut", "LogLik"), 
+                         n.adapt=1000, n.iter=10000, n.chains = 1, n.burnin = 1000)
 
 outputmcmcARMA_CPIAUCSL <- jags(model.file = textConnection(modelARMA.string),
                               data = line_data_CPIAUCSL,
-                              parameters.to.save= c("alpha", "theta", "sigma2", "m0", "Yp", "ypOut", "LogLik"), 
-                              n.adapt=1000, n.iter=10000, n.chains = 3, n.burnin = 1000)
+                              parameters.to.save= c("alpha", "theta", "sigma2", "mu0", "Yp", "ypOut", "LogLik"), 
+                              n.adapt=1000, n.iter=10000, n.chains = 1, n.burnin = 1000)
 ```
 
 ```{r}
@@ -99,28 +99,37 @@ DIC_CPIAUCSL
 ```
 
 ```{r}
-# Plots
-mcmc_trace(outputmcmcARMA_GDP$samples, pars = c("alpha"))
-mcmc_areas(outputmcmcARMA_GDP$samples, pars = c("alpha"),  prob = 0.95)
-mcmc_trace(outputmcmcARMA_GDP$samples, pars = c("theta"))
-mcmc_areas(outputmcmcARMA_GDP$samples, pars = c("theta"),  prob = 0.95)
-mcmc_trace(outputmcmcARMA_GDP$samples, pars = c("sigma2"))
-mcmc_areas(outputmcmcARMA_GDP$samples, pars = c("sigma2"),  prob = 0.95)
+# Plot 1
+p1 <- mcmc_areas(outputmcmcARMA_GDP$samples, pars = c("mu0"),  prob = 0.95)
+p2 <- mcmc_areas(outputmcmcARMA_GDP$samples, pars = c("alpha"),  prob = 0.95)
+p3 <- mcmc_areas(outputmcmcARMA_GDP$samples, pars = c("theta"),  prob = 0.95)
+p4 <- mcmc_areas(outputmcmcARMA_GDP$samples, pars = c("sigma2"),  prob = 0.95)
+p5 <- mcmc_areas(outputmcmcARMA_CPIAUCSL$samples, pars = c("mu0"),  prob = 0.95)
+p6 <- mcmc_areas(outputmcmcARMA_CPIAUCSL$samples, pars = c("alpha"),  prob = 0.95)
+p7 <- mcmc_areas(outputmcmcARMA_CPIAUCSL$samples, pars = c("theta"),  prob = 0.95)
+p8 <- mcmc_areas(outputmcmcARMA_CPIAUCSL$samples, pars = c("sigma2"),  prob = 0.95)
+grid.arrange(p1, p2, p3, p4, p5, p6, p7, p8, ncol=4, nrow=2, top="Posterior distributions")
 
+# Plot 2
+p1 <- mcmc_trace(outputmcmcARMA_GDP$samples, pars = c("mu0"))
+p2 <- mcmc_trace(outputmcmcARMA_GDP$samples, pars = c("alpha"))
+p3 <- mcmc_trace(outputmcmcARMA_GDP$samples, pars = c("theta"))
+p4 <- mcmc_trace(outputmcmcARMA_GDP$samples, pars = c("sigma2"))
+p5 <- mcmc_trace(outputmcmcARMA_CPIAUCSL$samples, pars = c("mu0"))
+p6 <- mcmc_trace(outputmcmcARMA_CPIAUCSL$samples, pars = c("alpha"))
+p7 <- mcmc_trace(outputmcmcARMA_CPIAUCSL$samples, pars = c("theta"))
+p8 <- mcmc_trace(outputmcmcARMA_CPIAUCSL$samples, pars = c("sigma2"))
+grid.arrange(p1, p2, p3, p4, p5, p6, p7, p8, ncol=4, nrow=2, top="Trace plots")
+
+# Plot 3
+autocorr.plot(outputmcmcARMA_GDP$samples[,c("mu0")],main="mu0 GDP")
+autocorr.plot(outputmcmcARMA_GDP$samples[,c("sigma2")],main="sigma2 GDP")
 autocorr.plot(outputmcmcARMA_GDP$samples[,c("alpha")],main="alpha GDP")
 autocorr.plot(outputmcmcARMA_GDP$samples[,c("theta")],main="theta GDP")
-autocorr.plot(outputmcmcARMA_GDP$samples[,c("sigma2")],main="sigma2 GDP")
-
-mcmc_trace(outputmcmcARMA_CPIAUCSL$samples, pars = c("alpha"))
-mcmc_areas(outputmcmcARMA_CPIAUCSL$samples, pars = c("alpha"),  prob = 0.95)
-mcmc_trace(outputmcmcARMA_CPIAUCSL$samples, pars = c("theta"))
-mcmc_areas(outputmcmcARMA_CPIAUCSL$samples, pars = c("theta"),  prob = 0.95)
-mcmc_trace(outputmcmcARMA_CPIAUCSL$samples, pars = c("sigma2"))
-mcmc_areas(outputmcmcARMA_CPIAUCSL$samples, pars = c("sigma2"),  prob = 0.95)
-
+autocorr.plot(outputmcmcARMA_CPIAUCSL$samples[,c("mu0")],main="mu0 CPIAUCSL")
+autocorr.plot(outputmcmcARMA_CPIAUCSL$samples[,c("sigma2")],main="sigma2 CPIAUCSL")
 autocorr.plot(outputmcmcARMA_CPIAUCSL$samples[,c("alpha")],main="alpha CPIAUCSL")
 autocorr.plot(outputmcmcARMA_CPIAUCSL$samples[,c("theta")],main="theta CPIAUCSL")
-autocorr.plot(outputmcmcARMA_CPIAUCSL$samples[,c("sigma2")],main="sigma2 CPIAUCSL")
 ```
 
 ```{r}
@@ -248,5 +257,4 @@ predict_infl$pred
 ts.plot(data$CPIAUCSL_PC1, ylab="y_t", main="ARIMA vs True data")
 points(ARMA_infl_fit, type = "l", col = 2, lty = 2)
 points(predict_infl$pred, type = "l", col = 'green2', lty = 2)
-
 ```

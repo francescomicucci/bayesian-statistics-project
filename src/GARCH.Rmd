@@ -34,7 +34,7 @@ modelGARCH.string <-"model {
   for(i in 2:N) {
     Y[i]      ~ dnorm(mu[i], tau[i])
     Yp[i]     ~ dnorm(mu[i], tau[i])      # Prediction in sample
-    mu[i]     <- m0 + alpha * Y[i-1]
+    mu[i]     <- mu0 + alpha * Y[i-1]
     tau[i]    <- 1 / sigma2[i]
     sigma2[i] <- a[1] + a[2] * eps2[i-1] + a[3] * sigma2[i-1]
     eps2[i]   <- (Y[i] - mu[i]) * (Y[i] - mu[i])
@@ -43,13 +43,13 @@ modelGARCH.string <-"model {
   
   # Prediction out of sample 
   ypOut[1]     ~  dnorm(muOut[1], tauOut[1])
-  muOut[1]     <- m0 + alpha * Y[N]
+  muOut[1]     <- mu0 + alpha * Y[N]
   tauOut[1]    <- 1 / sigma2Out[1]
   sigma2Out[1] <- a[1] + a[2] * eps2[N] + a[3] * sigma2[N]
   eps2Out[1]   <- (ypOut[1] - muOut[1]) * (ypOut[1] - muOut[1])
   for (k in 2:Npred) {
     ypOut[k]     ~  dnorm(muOut[k], tauOut[k])
-    muOut[k]     <- m0 + alpha * ypOut[k-1]
+    muOut[k]     <- mu0 + alpha * ypOut[k-1]
     tauOut[k]    <- 1 / sigma2Out[k]
     sigma2Out[k] <- a[1] + a[2] * eps2Out[k-1] + a[3] * sigma2Out[k-1]
     eps2Out[k]   <- (ypOut[k] - muOut[k]) * (ypOut[k] - muOut[k])
@@ -60,7 +60,7 @@ modelGARCH.string <-"model {
     a[j] ~ dgamma(0.01, 0.01)
   }
   alpha ~ dunif(-1, 1)
-  m0    ~ dnorm(0.0, 1.0E-4)
+  mu0   ~ dnorm(0.0, 1.0E-4)
 }"
 ```
 
@@ -83,13 +83,13 @@ line_data_CPIAUCSL <- list("N" = N,
 # JAGS
 outputmcmcGARCH_GDP <- jags(model.file = textConnection(modelGARCH.string),
                          data = line_data_GDP,
-                         parameters.to.save= c("a", "alpha", "sigma2", "m0", "Yp", "ypOut", "LogLik"), 
-                         n.adapt=1000, n.iter=10000, n.chains = 3, n.burnin = 1000)
+                         parameters.to.save= c("a", "alpha", "sigma2", "mu0", "Yp", "ypOut", "LogLik"), 
+                         n.adapt=1000, n.iter=10000, n.chains = 1, n.burnin = 1000)
 
 outputmcmcGARCH_CPIAUCSL <- jags(model.file = textConnection(modelGARCH.string),
                               data = line_data_CPIAUCSL,
-                              parameters.to.save= c("a", "alpha", "sigma2", "m0", "Yp", "ypOut", "LogLik"), 
-                              n.adapt=1000, n.iter=10000, n.chains = 3, n.burnin = 1000)
+                              parameters.to.save= c("a", "alpha", "sigma2", "mu0", "Yp", "ypOut", "LogLik"), 
+                              n.adapt=1000, n.iter=10000, n.chains = 1, n.burnin = 1000)
 ```
 
 ```{r}
@@ -106,34 +106,43 @@ DIC_CPIAUCSL
 ```
 
 ```{r}
-# Plots
-mcmc_trace(outputmcmcGARCH_GDP$samples, pars = c("a[1]"))
-mcmc_areas(outputmcmcGARCH_GDP$samples, pars = c("a[1]"),  prob = 0.95)
-mcmc_trace(outputmcmcGARCH_GDP$samples, pars = c("a[2]"))
-mcmc_areas(outputmcmcGARCH_GDP$samples, pars = c("a[2]"),  prob = 0.95)
-mcmc_trace(outputmcmcGARCH_GDP$samples, pars = c("a[3]"))
-mcmc_areas(outputmcmcGARCH_GDP$samples, pars = c("a[3]"),  prob = 0.95)
-mcmc_trace(outputmcmcGARCH_GDP$samples, pars = c("alpha"))
-mcmc_areas(outputmcmcGARCH_GDP$samples, pars = c("alpha"),  prob = 0.95)
+# Plot 1
+p1  <- mcmc_areas(outputmcmcGARCH_GDP$samples, pars = c("mu0"),  prob = 0.95)
+p2  <- mcmc_areas(outputmcmcGARCH_GDP$samples, pars = c("alpha"),  prob = 0.95)
+p3  <- mcmc_areas(outputmcmcGARCH_GDP$samples, pars = c("a[1]"),  prob = 0.95)
+p4  <- mcmc_areas(outputmcmcGARCH_GDP$samples, pars = c("a[2]"),  prob = 0.95)
+p5  <- mcmc_areas(outputmcmcGARCH_GDP$samples, pars = c("a[3]"),  prob = 0.95)
+p6  <- mcmc_areas(outputmcmcGARCH_CPIAUCSL$samples, pars = c("mu0"),  prob = 0.95)
+p7  <- mcmc_areas(outputmcmcGARCH_CPIAUCSL$samples, pars = c("alpha"),  prob = 0.95)
+p8  <- mcmc_areas(outputmcmcGARCH_CPIAUCSL$samples, pars = c("a[1]"),  prob = 0.95)
+p9  <- mcmc_areas(outputmcmcGARCH_CPIAUCSL$samples, pars = c("a[2]"),  prob = 0.95)
+p10 <- mcmc_areas(outputmcmcGARCH_CPIAUCSL$samples, pars = c("a[3]"),  prob = 0.95)
+grid.arrange(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, ncol=5, nrow=2, top="Posterior distributions")
 
+# Plot 2
+p1  <- mcmc_trace(outputmcmcGARCH_GDP$samples, pars = c("mu0"))
+p2  <- mcmc_trace(outputmcmcGARCH_GDP$samples, pars = c("alpha"))
+p3  <- mcmc_trace(outputmcmcGARCH_GDP$samples, pars = c("a[1]"))
+p4  <- mcmc_trace(outputmcmcGARCH_GDP$samples, pars = c("a[2]"))
+p5  <- mcmc_trace(outputmcmcGARCH_GDP$samples, pars = c("a[3]"))
+p6  <- mcmc_trace(outputmcmcGARCH_CPIAUCSL$samples, pars = c("mu0"))
+p7  <- mcmc_trace(outputmcmcGARCH_CPIAUCSL$samples, pars = c("alpha"))
+p8  <- mcmc_trace(outputmcmcGARCH_CPIAUCSL$samples, pars = c("a[1]"))
+p9  <- mcmc_trace(outputmcmcGARCH_CPIAUCSL$samples, pars = c("a[2]"))
+p10 <- mcmc_trace(outputmcmcGARCH_CPIAUCSL$samples, pars = c("a[3]"))
+grid.arrange(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, ncol=2, nrow=5, top="Trace plots")
+
+# Plot 3
+autocorr.plot(outputmcmcGARCH_GDP$samples[,c("mu0")],main="mu0 GDP")
+autocorr.plot(outputmcmcGARCH_GDP$samples[,c("alpha")],main="alpha GDP")
 autocorr.plot(outputmcmcGARCH_GDP$samples[,c("a[1]")],main="a[1] GDP")
 autocorr.plot(outputmcmcGARCH_GDP$samples[,c("a[2]")],main="a[2] GDP")
 autocorr.plot(outputmcmcGARCH_GDP$samples[,c("a[3]")],main="a[3] GDP")
-autocorr.plot(outputmcmcGARCH_GDP$samples[,c("alpha")],main="alpha GDP")
-
-mcmc_trace(outputmcmcGARCH_CPIAUCSL$samples, pars = c("a[1]"))
-mcmc_areas(outputmcmcGARCH_CPIAUCSL$samples, pars = c("a[1]"),  prob = 0.95)
-mcmc_trace(outputmcmcGARCH_CPIAUCSL$samples, pars = c("a[2]"))
-mcmc_areas(outputmcmcGARCH_CPIAUCSL$samples, pars = c("a[2]"),  prob = 0.95)
-mcmc_trace(outputmcmcGARCH_CPIAUCSL$samples, pars = c("a[3]"))
-mcmc_areas(outputmcmcGARCH_CPIAUCSL$samples, pars = c("a[3]"),  prob = 0.95)
-mcmc_trace(outputmcmcGARCH_CPIAUCSL$samples, pars = c("alpha"))
-mcmc_areas(outputmcmcGARCH_CPIAUCSL$samples, pars = c("alpha"),  prob = 0.95)
-
+autocorr.plot(outputmcmcGARCH_CPIAUCSL$samples[,c("mu0")],main="mu0 CPIAUCSL")
+autocorr.plot(outputmcmcGARCH_CPIAUCSL$samples[,c("alpha")],main="alpha CPIAUCSL")
 autocorr.plot(outputmcmcGARCH_CPIAUCSL$samples[,c("a[1]")],main="a[1] CPIAUCSL")
 autocorr.plot(outputmcmcGARCH_CPIAUCSL$samples[,c("a[2]")],main="a[2] CPIAUCSL")
 autocorr.plot(outputmcmcGARCH_CPIAUCSL$samples[,c("a[3]")],main="a[3] CPIAUCSL")
-autocorr.plot(outputmcmcGARCH_CPIAUCSL$samples[,c("alpha")],main="alpha CPIAUCSL")
 
 plot(outputmcmcGARCH_GDP$mean$sigma2, main = "sigma^2 GDP", ylab = "sigma^2", xlab = "Time")
 plot(outputmcmcGARCH_CPIAUCSL$mean$sigma2, main = "sigma^2 CPIAUCSL", ylab = "sigma^2", xlab = "Time")

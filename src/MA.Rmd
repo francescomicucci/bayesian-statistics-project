@@ -77,12 +77,12 @@ line_data_CPIAUCSL <- list("N" = N,
 outputmcmcMA_GDP <- jags(model.file = textConnection(modelMA.string),
                          data = line_data_GDP,
                          parameters.to.save= c("theta", "sigma2", "eps", "mu0", "Yp", "ypOut", "LogLik"), 
-                         n.adapt=1000, n.iter=10000, n.chains = 3, n.burnin = 3000)
+                         n.adapt=1000, n.iter=10000, n.chains = 1, n.burnin = 1000)
 
 outputmcmcMA_CPIAUCSL <- jags(model.file = textConnection(modelMA.string),
                               data = line_data_CPIAUCSL,
                               parameters.to.save= c("theta", "sigma2", "eps", "mu0", "Yp", "ypOut", "LogLik"), 
-                              n.adapt=1000, n.iter=10000, n.chains = 3, n.burnin = 3000)
+                              n.adapt=1000, n.iter=10000, n.chains = 1, n.burnin = 1000)
 ```
 
 ```{r}
@@ -302,12 +302,12 @@ line_data_CPIAUCSL <- list("N" = N,
 outputmcmcMA_GDP <- jags(model.file = textConnection(modelMA_q2.string),
                          data = line_data_GDP,
                          parameters.to.save= c("theta_1", "theta_2", "sigma2", "eps", "mu0", "Yp", "ypOut", "LogLik"), 
-                         n.adapt=1000, n.iter=10000, n.chains = 3, n.burnin = 3000)
+                         n.adapt=1000, n.iter=10000, n.chains = 1, n.burnin = 1000)
 
 outputmcmcMA_CPIAUCSL <- jags(model.file = textConnection(modelMA_q2.string),
                               data = line_data_CPIAUCSL,
                               parameters.to.save= c("theta_1", "theta_2", "sigma2", "eps", "mu0", "Yp", "ypOut", "LogLik"), 
-                              n.adapt=1000, n.iter=10000, n.chains = 3, n.burnin = 3000)
+                              n.adapt=1000, n.iter=10000, n.chains = 1, n.burnin = 1000)
 ```
 
 ```{r}

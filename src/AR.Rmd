@@ -25,28 +25,28 @@ data$CPIAUCSL_PC1 = as.numeric(data$CPIAUCSL_PC1)
 ```{r}
 # Define model in JAGS
 modelAR.string <-"model {
-  ## Parameters: alpha, tau, m0
+  ## Parameters: alpha, tau, mu0
   # Likelihood 
   mu[1] <- Y[1]
   Yp[1] <- Y[1]
   for (i in 2:N) {
     Y[i]      ~  dnorm(mu[i], tau)
-    mu[i]     <- m0 + alpha * Y[i-1]
+    mu[i]     <- mu0 + alpha * Y[i-1]
     Yp[i]     ~  dnorm(mu[i],tau)      # Prediction in sample
     LogLik[i] <- log(dnorm(Y[i], mu[i], tau)) 
   }
   
   # Prediction out of sample 
-  ypOut[1] ~ dnorm(m0 + alpha * Y[N], tau) 
+  ypOut[1] ~ dnorm(mu0 + alpha * Y[N], tau) 
   for(k in 2:Npred){
-    ypOut[k] ~ dnorm(m0 + alpha * ypOut[k-1], tau) 
+    ypOut[k] ~ dnorm(mu0 + alpha * ypOut[k-1], tau) 
   }
   sigma2 <- 1/tau
   
   # Prior 
   alpha ~ dunif(-1.0, 1.0)
   tau   ~ dgamma(2, 0.1)
-  m0    ~ dnorm(0.0, 1.0E-4)
+  mu0   ~ dnorm(0.0, 1.0E-4)
 }"
 ```
 
@@ -69,13 +69,13 @@ line_data_CPIAUCSL <- list("N" = N,
 # JAGS
 outputmcmcAR_GDP <- jags(model.file = textConnection(modelAR.string),
                          data = line_data_GDP,
-                         parameters.to.save= c("alpha", "sigma2", "m0", "Yp", "ypOut", "LogLik"), 
-                         n.adapt=1000, n.iter=1000, n.chains = 3, n.burnin = 100)
+                         parameters.to.save= c("alpha", "sigma2", "mu0", "Yp", "ypOut", "LogLik"), 
+                         n.adapt=1000, n.iter=10000, n.chains = 1, n.burnin = 1000)
 
 outputmcmcAR_CPIAUCSL <- jags(model.file = textConnection(modelAR.string),
                               data = line_data_CPIAUCSL,
-                              parameters.to.save= c("alpha", "sigma2", "m0", "Yp", "ypOut", "LogLik"), 
-                              n.adapt=1000, n.iter=1000, n.chains = 3, n.burnin = 100)
+                              parameters.to.save= c("alpha", "sigma2", "mu0", "Yp", "ypOut", "LogLik"), 
+                              n.adapt=1000, n.iter=10000, n.chains = 1, n.burnin = 1000)
 ```
 
 ```{r}
@@ -92,28 +92,31 @@ DIC_CPIAUCSL
 ```
 
 ```{r}
-# Plots
-mcmc_trace(outputmcmcAR_GDP$samples, pars = c("alpha"))
-mcmc_areas(outputmcmcAR_GDP$samples, pars = c("alpha"),  prob = 0.95)
-mcmc_trace(outputmcmcAR_GDP$samples, pars = c("sigma2"))
-mcmc_areas(outputmcmcAR_GDP$samples, pars = c("sigma2"),  prob = 0.95)
-mcmc_trace(outputmcmcAR_GDP$samples, pars = c("m0"))
-mcmc_areas(outputmcmcAR_GDP$samples, pars = c("m0"),  prob = 0.95)
+# Plot 1
+p1 <- mcmc_areas(outputmcmcAR_GDP$samples, pars = c("mu0"),  prob = 0.95)
+p2 <- mcmc_areas(outputmcmcAR_GDP$samples, pars = c("alpha"),  prob = 0.95)
+p3 <- mcmc_areas(outputmcmcAR_GDP$samples, pars = c("sigma2"),  prob = 0.95)
+p4 <- mcmc_areas(outputmcmcAR_CPIAUCSL$samples, pars = c("mu0"),  prob = 0.95)
+p5 <- mcmc_areas(outputmcmcAR_CPIAUCSL$samples, pars = c("alpha"),  prob = 0.95)
+p6 <- mcmc_areas(outputmcmcAR_CPIAUCSL$samples, pars = c("sigma2"),  prob = 0.95)
+grid.arrange(p1, p2, p3, p4, p5, p6, ncol=3, nrow=2, top="Posterior distributions")
 
+# Plot 2
+p1 <- mcmc_trace(outputmcmcAR_GDP$samples, pars = c("mu0"))
+p2 <- mcmc_trace(outputmcmcAR_GDP$samples, pars = c("alpha"))
+p3 <- mcmc_trace(outputmcmcAR_GDP$samples, pars = c("sigma2"))
+p4 <- mcmc_trace(outputmcmcAR_CPIAUCSL$samples, pars = c("mu0"))
+p5 <- mcmc_trace(outputmcmcAR_CPIAUCSL$samples, pars = c("alpha"))
+p6 <- mcmc_trace(outputmcmcAR_CPIAUCSL$samples, pars = c("sigma2"))
+grid.arrange(p1, p2, p3, p4, p5, p6, ncol=3, nrow=2, top="Trace plots")
+
+# Plot 3
+autocorr.plot(outputmcmcAR_GDP$samples[,c("mu0")],main="mu0 GDP")
 autocorr.plot(outputmcmcAR_GDP$samples[,c("alpha")],main="alpha GDP")
 autocorr.plot(outputmcmcAR_GDP$samples[,c("sigma2")],main="sigma2 GDP")
-autocorr.plot(outputmcmcAR_GDP$samples[,c("m0")],main="m0 GDP")
-
-mcmc_trace(outputmcmcAR_CPIAUCSL$samples, pars = c("alpha"))
-mcmc_areas(outputmcmcAR_CPIAUCSL$samples, pars = c("alpha"),  prob = 0.95)
-mcmc_trace(outputmcmcAR_CPIAUCSL$samples, pars = c("sigma2"))
-mcmc_areas(outputmcmcAR_CPIAUCSL$samples, pars = c("sigma2"),  prob = 0.95)
-mcmc_trace(outputmcmcAR_CPIAUCSL$samples, pars = c("m0"))
-mcmc_areas(outputmcmcAR_CPIAUCSL$samples, pars = c("m0"),  prob = 0.95)
-
+autocorr.plot(outputmcmcAR_CPIAUCSL$samples[,c("mu0")],main="mu0 CPIAUCSL")
 autocorr.plot(outputmcmcAR_CPIAUCSL$samples[,c("alpha")],main="alpha CPIAUCSL")
 autocorr.plot(outputmcmcAR_CPIAUCSL$samples[,c("sigma2")],main="sigma2 CPIAUCSL")
-autocorr.plot(outputmcmcAR_CPIAUCSL$samples[,c("m0")],main="m0 CPIAUCSL")
 ```
 
 ```{r}
