@@ -116,21 +116,17 @@
 			\vspace{2.5cm}
 			\\
 			{{\color{bluepoli} \singlespacing \huge \bfseries \thesistitle \par}}	
-			\vspace{1.5cm}
-			{\color{bluepoli} \bfseries \large{\textsc{Tesi di Laurea Magistrale in\\ \course}}\par}
+			{\color{bluepoli} \bfseries \large{\textsc{\course}}\par}
+			\vspace{1cm}
+			{\color{black} \Large {Authors:} \bfseries{Giorgio Miani, Francesco Micucci}}
 			\vspace{1.5 cm}
-			{\color{black} \Large {Author:} \bfseries{\name}}
 			\end{minipage}
 			\\
 			\vspace*{\fill}
 			\\
 			\begin{minipage}{0.85\textwidth}
 			\normalsize{
-			Student ID: {\ID}
-			\\
-			Advisor: {\advisor}
-			\\
-			Co-advisors: {\coadvisor}
+			Students IDs: {10685401, 10729167}
 			\\
 			Academic Year: {\academicyear}
 			}
