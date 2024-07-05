@@ -43,17 +43,12 @@ Here below are shown the posterior distributions for the parameters, while the t
 Once we assested the validity of the results, we plotted the in-sample and out-of-sample prediction with credible intervals and we compared it with the true data:
 \begin{figure}[h]
     \centering
-    \begin{minipage}[t]{0.7\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{images/5-GARCH/gdp_prediction.png}
-        \label{fig:GARCH_first}
-    \end{minipage}
-    \begin{minipage}[t]{0.7\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{images/5-GARCH/infl_prediction.png}
-        \label{fig:GARCH_second}
-    \end{minipage}
-    \caption{GARCH(1,1): In-sample and out-of-sample predictions}
-    \label{fig:GARCH_combined}
+    \includegraphics[width=0.75\textwidth]{images/5-GARCH/gdp_prediction.png}
+    \label{fig:GARCH_first}
+\end{figure}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.75\textwidth]{images/5-GARCH/infl_prediction.png}
+    \label{fig:GARCH_second}
 \end{figure}
 Finally we compared the model with the results from the uGarch library. The detailed comparison results are provided in the Appendix. 

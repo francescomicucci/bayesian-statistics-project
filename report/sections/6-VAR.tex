@@ -24,22 +24,22 @@ or, in a more extensive way:
 \begin{equation}
     \label{VAR_1}
     \begin{pmatrix}
-        y_{1t} \\
-        y_{2t}
+        \ \ \ y_{1t} \\
+        \ \ \ y_{2t}
     \end{pmatrix}
     =
     \begin{pmatrix}
-        a_{11} & a_{12} \\
-        a_{21} & a_{22}
+        \ \ \ a_{11} & a_{12} \\
+        \ \ \ a_{21} & a_{22}
     \end{pmatrix}
     \begin{pmatrix}
-        y_{1, t-1} \\
-        y_{2, t-1}
+        \ \ \ y_{1, t-1} \\
+        \ \ \ y_{2, t-1}
     \end{pmatrix}
     +
     \begin{pmatrix}
-        \epsilon_{1t} \\
-        \epsilon_{2t}
+        \ \ \ \epsilon_{1t} \\
+        \ \ \ \epsilon_{2t}
     \end{pmatrix}
 \end{equation}
 where:
@@ -65,8 +65,8 @@ where:
 \begin{equation}
     R = 
     \begin{pmatrix}
-        1 & 0.5 \\
-        0.5 & 1
+        \ \ \ 1 & 0.5 \\
+        \ \ \ 0.5 & 1
     \end{pmatrix}
 \end{equation}
 choosing them to be uninformative ones. \\
@@ -77,20 +77,15 @@ We produced the traceplots and autocorrelation plots to verify the validity of o
     \caption{The image displays the posterior distributions of the parameters for the VAR(1) model.}
     \label{fig:VAR_posteriors}
 \end{figure} \\
-Finally we plotted the in-sample and out-of-sample predictions with credible intervals and we compared it with the true data: \\   
+Finally we plotted the in-sample and out-of-sample predictions with credible intervals and we compared it with the true data: \\  
 \begin{figure}[h]
     \centering
-    \begin{minipage}[t]{0.7\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{images/6-VAR/gdp_prediction.png}
-        \label{fig:VAR_first}
-    \end{minipage}
-    \begin{minipage}[t]{0.7\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{images/6-VAR/infl_prediction.png}
-        \label{fig:VAR_second}
-    \end{minipage}
-    \caption{VAR(1): In-sample and out-of-sample predictions}
-    \label{fig:VAR_combined}
+    \includegraphics[width=0.75\textwidth]{images/6-VAR/gdp_prediction.png}
+    \label{fig:VAR_first}
+\end{figure}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.75\textwidth]{images/6-VAR/infl_prediction.png}
+    \label{fig:VAR_second}
 \end{figure}
 In the Appendix it is possible to find a comparison between our model and the VAR function (using a frequentistic approach) to verify the model's correctness.
