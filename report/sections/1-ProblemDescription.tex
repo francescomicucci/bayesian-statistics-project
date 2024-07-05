@@ -2,9 +2,19 @@
 In this report we are going to consider two timeseries regarding the evolution of the US GDP and CPIAUCSL from 1948 to 2021.
 The Gross Domestic Product (GDP) is a measure of the economic performance of a country, while the Consumer Price Index for All Urban Consumers (CPIAUCSL) is a price index of a basket of goods and services paid by urban consumers.
 
-Both these two metrics have been calculated quarterly and seasonally adjusted, which means that the effects of weather changes has been removed. Moreover we consider the Percent Change for the values, which measures the inflation rate between any two time periods
+Both these two metrics have been calculated quarterly and they have been seasonally adjusted, which means that the effects of weather changes on the indices has been removed. Moreover we consider the Percent Change for the values, which measures the inflation rate between two time periods.
 
-Our goal is to:
+The goal of our project is to:
 \begin{itemize}
-    \item
+    \item fit the two timeseries independently using AR, MA, ARMA and GARCH models;
+    \item fit the two timeseries together using a VAR model;
+    \item compare the results obtained with the different models by calculating DIC and WAIC;
 \end{itemize}
+All models have been implemented and run through JAGS, using the following parameters:
+\begin{itemize}
+    \item 10000 iterations;
+    \item 3 chains;
+    \item \item 1000 burn-in iterations;
+\end{itemize}
+Traceplot, autocorrelation plots and comparison with open-source libraries and functions have been analyzed to check the correctness of the implementations and the validity of the models.
+The results are provided in the Appendix.
