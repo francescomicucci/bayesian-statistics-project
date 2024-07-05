@@ -6,6 +6,7 @@ linearly on its own previous values and on a stochastic term. An autoregression 
     y_{t}=\mu_{0}+\epsilon_t \sum^{p}_{i=1}\alpha_{i} y_{t-i}
 \end{equation}
 where $\mu_{0}$ is the mean of the timeserie, $\alpha_{i}$ are the parameters of the model, $\epsilon_{t}$ is white noise and $y_{t-1}, y_{t-2}, ..., y_{t-p}$ are the past values.
+
 We decided to implement the $p=1$ AR model, which can be rewritten in the following way:
 \begin{equation}
     \label{AR_q1}
@@ -13,6 +14,7 @@ We decided to implement the $p=1$ AR model, which can be rewritten in the follow
     \epsilon_t \stackrel{iid}{\sim} \mathcal{N}(0,\sigma^2)
 \end{equation}
 and we assumed $\epsilon$ to be independent and identical distributed variables coming from a normal distribution with mean $0$ and variance $\sigma^2$.
+
 Note that the stationarity of the model is garanteed for $|\alpha|<1$.
 
 \section*{AR(1)}
