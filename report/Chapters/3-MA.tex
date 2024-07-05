@@ -39,9 +39,25 @@ As we can notice, these priors have been chosen because they are uninformative. 
 Now, by running the JAGS code that implements the MA model of order 1 for the GDP and for the inflation, we obtain the following posteriors: \\
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{3-MA/posteriors.png}
+    \includegraphics[width=\textwidth]{../Images/3-MA/posteriors.png}
     \caption{The image displays the posterior distributions of the parameters for the MA(1) model. The top line corresponds to the model used for GDP, while the bottom line corresponds to the model used for inflation.}
-    \label{MA_posteriors}
+    \label{fig:MA_posteriors}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \begin{minipage}[t]{0.7\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{../Images/3-MA/gdp_prediction.png}
+        \label{fig:MA_first}
+    \end{minipage}
+    \begin{minipage}[t]{0.7\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{../Images/3-MA/infl_prediction.png}
+        \label{fig:MA_second}
+    \end{minipage}
+    \caption{MA(1): In-sample and out-of-sample predictions}
+    \label{fig:MA_combined}
 \end{figure}
 
 \section*{MA(2)}
@@ -59,3 +75,26 @@ And, the priors are:
         \theta_2 \sim \mathcal{U}(-1.0, 1.0)
     \end{split}
 \end{equation}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{../Images/3-MA/posteriors2.png}
+    \caption{The image displays the posterior distributions of the parameters for the MA(2) model. The top line corresponds to the model used for GDP, while the bottom line corresponds to the model used for inflation.}
+    \label{fig:MA2_posteriors}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \begin{minipage}[t]{0.7\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{../Images/3-MA/gdp_prediction2.png}
+        \label{fig:MA2_first}
+    \end{minipage}
+    \begin{minipage}[t]{0.7\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{../Images/3-MA/infl_prediction2.png}
+        \label{fig:MA2_second}
+    \end{minipage}
+    \caption{MA(2): In-sample and out-of-sample predictions}
+    \label{fig:MA2_combined}
+\end{figure}
