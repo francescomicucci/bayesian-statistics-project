@@ -33,19 +33,19 @@ We chose the following priors:
 Since we lack prior information for this problem, we selected hyperparameters for $\mu_{0}$ and $\sigma^2$ to ensure uninformative distributions, while for $\alpha$ we chose a uniform distribution between -1 and 1 in order to respect the stationary constraint mentioned before.
 We analyzed trace plots and autocorrelation plots to verify the model's correctness and the validity of our assumptions.
 Now, by running the JAGS code that implements the MA model of order 1 for the GDP and for the inflation, we obtain the following posteriors: \\
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{images/2-AR/posteriors.png}
     \caption{The image displays the posterior distributions of the parameters for the AR(1) model. The top line corresponds to the model used for GDP, while the bottom line corresponds to the model used for inflation.}
     \label{fig:AR_posteriors}
-\end{figure} \\
+\end{figure}
 Once we assested the validity of the results, we plotted the in-sample and out-of-sample prediction with credible intervals and we compared it with the true data: \\
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.75\textwidth]{images/2-AR/gdp_prediction.png}
     \label{fig:first}
 \end{figure}
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.75\textwidth]{images/2-AR/infl_prediction.png}
     \label{fig:second}

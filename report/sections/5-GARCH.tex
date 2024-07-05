@@ -33,7 +33,7 @@ We chose the following priors:
 \end{equation}
 We opted for an uninformative prior for $\mu_{0}$ and a uniform distribution for $\alpha$ to respect the stationary constraint for the AR part. Instead for $a_0, a_1, a_2$ we chose a gamma distribution in order to have a positive prior for the variance.
 Here below are shown the posterior distributions for the parameters, while the traceplots and autocorrelation plots are provided in the Appendix.
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{images/5-GARCH/posteriors.png}
     \caption{The image displays the posterior distributions of the parameters for the GARCH(1,1) model. The top line corresponds to the model used for GDP, while the bottom line corresponds to the model used for inflation.}
@@ -41,12 +41,12 @@ Here below are shown the posterior distributions for the parameters, while the t
 \end{figure}
 
 Once we assested the validity of the results, we plotted the in-sample and out-of-sample prediction with credible intervals and we compared it with the true data:
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.75\textwidth]{images/5-GARCH/gdp_prediction.png}
     \label{fig:GARCH_first}
 \end{figure}
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.75\textwidth]{images/5-GARCH/infl_prediction.png}
     \label{fig:GARCH_second}
