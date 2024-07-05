@@ -1,20 +1,16 @@
 \section{Problem Description}
-In this report we are going to consider two timeseries regarding the evolution of the US GDP and CPIAUCSL from 1948 to 2021.
-The Gross Domestic Product (GDP) is a measure of the economic performance of a country, while the Consumer Price Index for All Urban Consumers (CPIAUCSL) is a price index of a basket of goods and services paid by urban consumers.
-
-Both these two metrics have been calculated quarterly and they have been seasonally adjusted, which means that the effects of weather changes on the indices has been removed. Moreover we consider the Percent Change for the values, which measures the inflation rate between two time periods.
-
-The goal of our project is to:
+This report examines two time series tracking the evolution of the US GDP and CPIAUCSL from 1948 to 2021. \\
+The US Gross Domestic Product (GDP) represents the total market value of goods and services produced within the United States. The Consumer Price Index for All Urban Consumers (CPIAUCSL) reflects the average cost of a basket of goods and services purchased by urban consumers. Both metrics are reported quarterly and have been seasonally adjusted. In particular, we analyze their percentage changes over time. \\
+Our project aims to achieve the following objectives:
 \begin{itemize}
-    \item fit the two timeseries independently using AR, MA, ARMA and GARCH models;
-    \item fit the two timeseries together using a VAR model;
-    \item compare the results obtained with the different models by calculating DIC and WAIC;
+    \item Independently fit the two time series using AR, MA, ARMA, and GARCH models.
+    \item Fit the two time series together using a VAR model.
+    \item Compare the results obtained from different models by calculating DIC and WAIC.
 \end{itemize}
-All models have been implemented and run through JAGS, using the following parameters:
+All models were implemented using JAGS with the following specifications:
 \begin{itemize}
-    \item 10000 iterations;
-    \item 3 chains;
-    \item \item 1000 burn-in iterations;
+    \item 3 Chains.
+    \item Total of 10,000 Iterations.
+    \item 1,000 Burn-in Iterations.
 \end{itemize}
-Traceplot, autocorrelation plots and comparison with open-source libraries and functions have been analyzed to check the correctness of the implementations and the validity of the models.
-The results are provided in the Appendix.
+Furthermore, we analyzed trace plots and autocorrelation plots to detect any issues and compared our results with those obtained from public libraries and functions. Detailed results can be found in the Appendix.

@@ -136,8 +136,8 @@
 %  ****************************************
 %
 % SIDE MARGINS:
-\setlength\oddsidemargin  {2pc}
-\setlength\evensidemargin {2pc}
+\setlength\oddsidemargin  {-0.0400in} 
+\setlength\evensidemargin {-0.0400in} 
 \setlength\marginparwidth {2.0cm}
 \setlength\marginparsep   {10\p@}
 
@@ -151,7 +151,7 @@
 % DIMENSION OF TEXT:
 \setlength\textheight   {44\baselineskip}
 \addtolength\textheight {\topskip}
-\setlength\textwidth    {30pc}
+\setlength\textwidth    {16cm}
 \setlength\columnsep    {10\p@}
 \setlength\columnseprule{\z@}
 
