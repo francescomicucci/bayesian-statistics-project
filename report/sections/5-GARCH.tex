@@ -1,5 +1,5 @@
-\chapter{GARCH}
-\label{GARCH}
+\section{GARCH}
+\label{sec:GARCH}
 The Generalized Autoregressive Conditional Heteroskedasticity (GARCH) model is widely used in finance to analyse timeseries.
 
 The model describes the variance of the current error term as a function of the previous error terms and the previous variances. The general formulationc can be written as:
@@ -35,7 +35,7 @@ We opted for an uninformative prior for $\mu_{0}$ and a uniform distribution for
 Here below are shown the posterior distributions for the parameters, while the traceplots and autocorrelation plots are provided in the Appendix.
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{../Images/5-GARCH/posteriors.png}
+    \includegraphics[width=\textwidth]{images/5-GARCH/posteriors.png}
     \caption{The image displays the posterior distributions of the parameters for the GARCH(1,1) model. The top line corresponds to the model used for GDP, while the bottom line corresponds to the model used for inflation.}
     \label{fig:GARCH_posteriors}
 \end{figure}
@@ -45,12 +45,12 @@ Once we assested the validity of the results, we plotted the in-sample and out-o
     \centering
     \begin{minipage}[t]{0.7\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{../Images/5-GARCH/gdp_prediction.png}
+        \includegraphics[width=\textwidth]{images/5-GARCH/gdp_prediction.png}
         \label{fig:GARCH_first}
     \end{minipage}
     \begin{minipage}[t]{0.7\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{../Images/5-GARCH/infl_prediction.png}
+        \includegraphics[width=\textwidth]{images/5-GARCH/infl_prediction.png}
         \label{fig:GARCH_second}
     \end{minipage}
     \caption{GARCH(1,1): In-sample and out-of-sample predictions}

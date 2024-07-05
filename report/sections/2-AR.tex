@@ -1,5 +1,5 @@
-\chapter{Autoregressive Model}
-\label{AR}
+\section{Autoregressive Model}
+\label{sec:AR}
 The Autoregressive Model(AR) is a model for time series analysis. The model specifies that the output variable depends 
 linearly on its own previous values and on a stochastic term. An autoregression model of order p can be written as:
 \begin{equation}
@@ -17,8 +17,8 @@ and we assumed $\epsilon$ to be independent and identical distributed variables 
 
 Note that the stationarity of the model is garanteed for $|\alpha|<1$.
 
-\section*{AR(1)}
-Given the equation \refeq{AR_q1} the likelihood of the AR model can be expressed as:
+\subsection*{AR(1)}
+Given the equation \ref{AR_q1} the likelihood of the AR model can be expressed as:
 \begin{equation}
     y_{t}|\mu_{0},\alpha,\sigma^2,y_{t-1}\sim \mathcal{N}(\mu_{0} + \alpha y_{t-1}, \sigma^2)
 \end{equation}
@@ -35,25 +35,19 @@ We analyzed trace plots and autocorrelation plots to verify the model's correctn
 Now, by running the JAGS code that implements the MA model of order 1 for the GDP and for the inflation, we obtain the following posteriors: \\
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{../Images/2-AR/posteriors.png}
+    \includegraphics[width=\textwidth]{images/2-AR/posteriors.png}
     \caption{The image displays the posterior distributions of the parameters for the AR(1) model. The top line corresponds to the model used for GDP, while the bottom line corresponds to the model used for inflation.}
     \label{fig:AR_posteriors}
 \end{figure} \\
 Once we assested the validity of the results, we plotted the in-sample and out-of-sample prediction with credible intervals and we compared it with the true data: \\
-\begin{figure}[H]
+\begin{figure}[h]
     \centering
-    \begin{minipage}[H]{0.7\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{../Images/2-AR/gdp_prediction.png}
-        \label{fig:first}
-    \end{minipage}
-    \begin{minipage}[H]{0.7\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{../Images/2-AR/infl_prediction.png}
-        \label{fig:second}
-    \end{minipage}
-    \caption{In-sample and out-of-sample predictions}
-    \label{fig:combined}
-\end{figure} \\
-
-We concluded by comparing the model's in-sample predictions and the posterior distributions of its parameters with those obtained from the AR model using the ARIMA function. The detailed comparison results are provided in the Appendix. It was found that there is no significant difference between them. 
+    \includegraphics[width=\textwidth]{images/2-AR/gdp_prediction.png}
+    \label{fig:first}
+\end{figure}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{images/2-AR/infl_prediction.png}
+    \label{fig:second}
+\end{figure}
+We concluded by comparing the model's in-sample predictions and the posterior distributions of its parameters with those obtained from the AR model using the ARIMA function. The detailed comparison results are provided in the Appendix. It was found that there is no significant difference between them.

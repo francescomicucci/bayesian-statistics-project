@@ -1,5 +1,5 @@
-\chapter{Moving Average Model}
-\label{MA}
+\section{Moving Average Model}
+\label{sec:MA}
 Moving Average (MA) models are a type of model well-suited for univariate time series analysis. Unlike Autoregressive (AR) models, where the target variable depends directly on its past values, MA models rely on past random errors to predict future values.
 Moreover, an important advantage of MA models compared to AR models is that MA models are guaranteed to be stationary. \\
 The general formulation of a moving average model of order $q$ is given by:
@@ -23,7 +23,7 @@ In both scenarios, the error terms are assumed to be independently and identical
 
 \section*{MA(1)}
 \label{MA(1)}
-Referring to the formulation in \refeq{MA_q1}, the likelihood is expressed as follows:
+Referring to the formulation in \ref{MA_q1}, the likelihood is expressed as follows:
 $$
 y_t | \mu_0, \theta, \sigma^2, \epsilon_{t-1} \sim \mathcal{N}(\mu_0 + \theta \epsilon_{t-1},\sigma^2)
 $$
@@ -36,33 +36,28 @@ And, the priors are:
     \end{split}
 \end{equation}
 As we can notice, these priors have been chosen because they are uninformative. \\
-Now, by running the JAGS code that implements the MA model of order 1 for the GDP and for the inflation, we obtain the following posteriors: \\
+Now, by running the JAGS code that implements the MA model of order 1 for the GDP and for the inflation, we obtain the following posteriors:
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{../Images/3-MA/posteriors.png}
+    \includegraphics[width=\textwidth]{images/3-MA/posteriors.png}
     \caption{The image displays the posterior distributions of the parameters for the MA(1) model. The top line corresponds to the model used for GDP, while the bottom line corresponds to the model used for inflation.}
     \label{fig:MA_posteriors}
 \end{figure}
 
 \begin{figure}[h]
     \centering
-    \begin{minipage}[t]{0.7\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{../Images/3-MA/gdp_prediction.png}
-        \label{fig:MA_first}
-    \end{minipage}
-    \begin{minipage}[t]{0.7\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{../Images/3-MA/infl_prediction.png}
-        \label{fig:MA_second}
-    \end{minipage}
-    \caption{MA(1): In-sample and out-of-sample predictions}
-    \label{fig:MA_combined}
+    \includegraphics[width=\textwidth]{images/3-MA/gdp_prediction.png}
+    \label{fig:MA_first}
+\end{figure}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{images/3-MA/infl_prediction.png}
+    \label{fig:MA_second}
 \end{figure}
 
-\section*{MA(2)}
+\subsection*{MA(2)}
 \label{MA(2)}
-Referring to the formulation in \refeq{MA_q2}, the likelihood is expressed as follows:
+Referring to the formulation in \ref{MA_q2}, the likelihood is expressed as follows:
 $$
 y_t | \mu_0, \theta_1, \theta_2, \sigma^2, \epsilon_{t-1} \sim \mathcal{N}(\mu_0 + \theta_1 \epsilon_{t-1} + \theta_2 \epsilon_{t-2},\sigma^2)
 $$
@@ -78,23 +73,18 @@ And, the priors are:
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{../Images/3-MA/posteriors2.png}
+    \includegraphics[width=\textwidth]{images/3-MA/posteriors2.png}
     \caption{The image displays the posterior distributions of the parameters for the MA(2) model. The top line corresponds to the model used for GDP, while the bottom line corresponds to the model used for inflation.}
     \label{fig:MA2_posteriors}
 \end{figure}
 
 \begin{figure}[h]
     \centering
-    \begin{minipage}[t]{0.7\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{../Images/3-MA/gdp_prediction2.png}
-        \label{fig:MA2_first}
-    \end{minipage}
-    \begin{minipage}[t]{0.7\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{../Images/3-MA/infl_prediction2.png}
-        \label{fig:MA2_second}
-    \end{minipage}
-    \caption{MA(2): In-sample and out-of-sample predictions}
-    \label{fig:MA2_combined}
+    \includegraphics[width=\textwidth]{images/3-MA/gdp_prediction2.png}
+    \label{fig:MA2_first}
+\end{figure}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{images/3-MA/infl_prediction2.png}
+    \label{fig:MA2_second}
 \end{figure}
