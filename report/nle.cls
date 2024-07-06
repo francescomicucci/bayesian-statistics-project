@@ -142,7 +142,7 @@
 \setlength\marginparsep   {10\p@}
 
 % VERTICAL SPACING:
-\setlength\topmargin {2.5pc}
+\setlength\topmargin {-1.5pc}
 \setlength\headheight{13\p@}
 \setlength\headsep   {11\p@}
 \setlength\topskip	 {13\p@}

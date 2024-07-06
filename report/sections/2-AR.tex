@@ -1,53 +1,56 @@
 \section{Autoregressive Model}
 \label{sec:AR}
-The Autoregressive Model(AR) is a model for time series analysis. The model specifies that the output variable depends 
-linearly on its own previous values and on a stochastic term. An autoregression model of order p can be written as:
+An autoregressive model (AR model) is well-suited for time series analysis, as it operates on the premise that past values of a variable influence its current values. In essence, the AR model states that the output variable is linearly dependent on its own previous values along with a stochastic term. \\
+Formally, an autoregressive model of order $p$ is represented as:
 \begin{equation}
-    y_{t}=\mu_{0}+\epsilon_t \sum^{p}_{i=1}\alpha_{i} y_{t-i}
+    \label{eq:AR}
+    y_{t} = \mu_{0} + \sum^{p}_{i=1}\alpha_{i} y_{t-i} + \epsilon_t
 \end{equation}
-where $\mu_{0}$ is the mean of the timeserie, $\alpha_{i}$ are the parameters of the model, $\epsilon_{t}$ is white noise and $y_{t-1}, y_{t-2}, ..., y_{t-p}$ are the past values.
-
-We decided to implement the $p=1$ AR model, which can be rewritten in the following way:
-\begin{equation}
-    \label{AR_q1}
-    y_{t}=\mu_{0}+\epsilon_t +\alpha y_{t-1} \qquad 
-    \epsilon_t \stackrel{iid}{\sim} \mathcal{N}(0,\sigma^2)
-\end{equation}
-and we assumed $\epsilon$ to be independent and identical distributed variables coming from a normal distribution with mean $0$ and variance $\sigma^2$.
-
-Note that the stationarity of the model is garanteed for $|\alpha|<1$.
-
+where $p$ is the number of past values considered, $\mu_{0}$ is a constant, $\alpha_{i}$ are the model parameters, $\epsilon_{t}$ is white noise, and $y_{t-1}, y_{t-2}, ..., y_{t-p}$ are the past values. \\
+For our purposes, we decided to implement the AR model of order 1 (AR(1)).
 \subsection*{AR(1)}
-Given the equation \ref{AR_q1} the likelihood of the AR model can be expressed as:
+The AR(1) model is defined as follows:
 \begin{equation}
-    y_{t}|\mu_{0},\alpha,\sigma^2,y_{t-1}\sim \mathcal{N}(\mu_{0} + \alpha y_{t-1}, \sigma^2)
+    \label{eq:AR1}
+    y_{t} = \mu_{0} + \alpha y_{t-1} + \epsilon_t
 \end{equation}
-We chose the following priors:
+In our case study, we assume that $\epsilon_t$ are independent and identically distributed variables from a normal distribution with mean $0$ and variance $\sigma^2$, i.e., $\epsilon_t \stackrel{iid}{\sim} \mathcal{N}(0,\sigma^2)$, leading to the following likelihood:
 \begin{equation}
+    \label{eq:AR1_likelihood}
+    y_{t}|\mu_{0},\alpha,\sigma^2,y_{t-1} \sim \mathcal{N}(\mu_{0} + \alpha y_{t-1}, \sigma^2)
+\end{equation}
+For the priors, we chose:
+\begin{equation}
+    \label{eq:AR1_priors}
     \begin{split}
         \mu_0 \sim \mathcal{N}(0.0, 10000) \\
         \tau = 1 / \sigma^2 \sim \mathcal{G}(2, 0.1) \\
         \alpha \sim \mathcal{U}(-1.0, 1.0)
     \end{split}
 \end{equation}
-Since we lack prior information for this problem, we selected hyperparameters for $\mu_{0}$ and $\sigma^2$ to ensure uninformative distributions, while for $\alpha$ we chose a uniform distribution between -1 and 1 in order to respect the stationary constraint mentioned before.
-We analyzed trace plots and autocorrelation plots to verify the model's correctness and the validity of our assumptions.
-Now, by running the JAGS code that implements the MA model of order 1 for the GDP and for the inflation, we obtain the following posteriors: \\
-\begin{figure}[H]
+We selected these priors to ensure uninformative distributions for $\mu_{0}$ and $\sigma^2$, while for $\alpha$, we used a uniform distribution between -1 and 1 to satisfy the model's stationarity condition, i.e., $|\alpha| < 1$. \\
+Running the JAGS code to implement the AR(1) model for GDP and CPIAUCSL, we obtained the posterior distributions shown in Figure \ref{fig:AR1_posteriors}. \\
+\begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{images/2-AR/posteriors.png}
-    \caption{The image displays the posterior distributions of the parameters for the AR(1) model. The top line corresponds to the model used for GDP, while the bottom line corresponds to the model used for inflation.}
-    \label{fig:AR_posteriors}
+    \includegraphics[width=0.8\textwidth]{images/2-AR/posteriors.png}
+    \caption{Posterior distributions of the parameters for the AR(1) models. The top line corresponds to the model used for GDP, while the bottom line corresponds to the model used for CPIAUCSL.}
+    \label{fig:AR1_posteriors}
 \end{figure}
-Once we assested the validity of the results, we plotted the in-sample and out-of-sample prediction with credible intervals and we compared it with the true data: \\
+Specifically, we derived the following posterior means and 95\% credible intervals: \\
+% Add the table with the posterior means and credible intervals
+As seen from the posteriors, the $\alpha$ parameter is close to 1 for both GDP and CPIAUCSL. However, when using a prior for $\alpha$ over a larger range, i.e., $\alpha \sim \mathcal{U}(-2.0, 2.0)$, the estimated value of $\alpha$ did not change significantly. \\
+We also examined the trace plots and autocorrelation plots and found no significant issues. \\
+Lastly, we plotted the in-sample and out-of-sample predictions with 95\% credible intervals and compared them with the actual data. The results are shown in Figures \ref{fig:AR1_gdp_prediction} and \ref{fig:AR1_infl_prediction}. As observed, the AR(1) model captures the initial trend of the data. However, the COVID-19 pandemic caused the model to fail in predicting the sharp decrease in GDP and the sharp increase in CPIAUCSL. \\
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.75\textwidth]{images/2-AR/gdp_prediction.png}
-    \label{fig:first}
+    \caption{In-sample and out-of-sample predictions for the GDP using the AR(1) model.}
+    \label{fig:AR1_gdp_prediction}
 \end{figure}
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.75\textwidth]{images/2-AR/infl_prediction.png}
-    \label{fig:second}
+    \caption{In-sample and out-of-sample predictions for the CPIAUCSL using the AR(1) model.}
+    \label{fig:AR1_infl_prediction}
 \end{figure}
-We concluded by comparing the model's in-sample predictions and the posterior distributions of its parameters with those obtained from the AR model using the ARIMA function. The detailed comparison results are provided in the Appendix. It was found that there is no significant difference between them.
+Finally, we compared the model's in-sample predictions and posterior distributions with those obtained from the AR model using the ARIMA function. Detailed comparison results are provided in the Appendix, showing no significant differences between them.
