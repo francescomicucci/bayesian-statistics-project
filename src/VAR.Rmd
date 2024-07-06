@@ -31,34 +31,34 @@ modelVAR.string <-"model {
   Yp[1:2, 1] <- Y[1:2, 1]
   mu[1:2, 1] <- Y[1:2, 1]
   for (i in 2:N) {
-    Y[1:2, i]  ~ dmnorm(mu[1:2, i], tau[1:2, 1:2])
-    Yp[1:2, i] ~ dmnorm(mu[1:2, i], tau[1:2, 1:2])   # Prediction in sample 
-    mu[1,i]    <- mu0[1] + alpha[1,1] * Y[1,i-1] + alpha[1,2] * Y[2,i-1]
-    mu[2,i]    <- mu0[2] + alpha[2,1] * Y[1,i-1] + alpha[2,2] * Y[2,i-1]
-    LogLik[i]  <- logdensity.mnorm(Y[1:2, i], mu[1:2, i], tau[1:2, 1:2])
+    Y[1:2, i]  ~ dmnorm(mu[1:2, i], omega[1:2, 1:2])
+    Yp[1:2, i] ~ dmnorm(mu[1:2, i], omega[1:2, 1:2])   # Prediction in sample 
+    mu[1,i]    <- mu0[1] + A[1,1] * Y[1,i-1] + A[1,2] * Y[2,i-1]
+    mu[2,i]    <- mu0[2] + A[2,1] * Y[1,i-1] + A[2,2] * Y[2,i-1]
+    LogLik[i]  <- logdensity.mnorm(Y[1:2, i], mu[1:2, i], omega[1:2, 1:2])
   }
   
   # Prediction out of sample 
-  ypOut[1:2, 1]  ~ dmnorm(muOut[1:2, 1], tau[1:2, 1:2])
-  muOut[1,1]     <- mu0[1] + alpha[1,1] * Y[1,N] + alpha[1,2] * Y[2,N]
-  muOut[2,1]     <- mu0[2] + alpha[2,1] * Y[1,N] + alpha[2,2] * Y[2,N]
+  ypOut[1:2, 1]  ~ dmnorm(muOut[1:2, 1], omega[1:2, 1:2])
+  muOut[1,1]     <- mu0[1] + A[1,1] * Y[1,N] + A[1,2] * Y[2,N]
+  muOut[2,1]     <- mu0[2] + A[2,1] * Y[1,N] + A[2,2] * Y[2,N]
   for (k in 2:Npred) {
-    ypOut[1:2, k] ~ dmnorm(muOut[1:2, k], tau[1:2, 1:2])
-    muOut[1,k]    <- mu0[1] + alpha[1,1] * ypOut[1,k-1] + alpha[1,2] * ypOut[2,k-1]
-    muOut[2,k]    <- mu0[2] + alpha[2,1] * ypOut[1,k-1] + alpha[2,2] * ypOut[2,k-1]
+    ypOut[1:2, k] ~ dmnorm(muOut[1:2, k], omega[1:2, 1:2])
+    muOut[1,k]    <- mu0[1] + A[1,1] * ypOut[1,k-1] + A[1,2] * ypOut[2,k-1]
+    muOut[2,k]    <- mu0[2] + A[2,1] * ypOut[1,k-1] + A[2,2] * ypOut[2,k-1]
   }
   
-  cov.matrix <- inverse(tau)
+  sigma <- inverse(omega)
   
   # Prior 
   for(j in 1:2) {
     for(h in 1:2) {
-      alpha[j, h] ~ dunif(-1, 1)
+      A[j, h] ~ dunif(-1, 1)
     }
     mu0[j]  ~ dnorm(0.0, 1.0E-4)
   }
   
-  tau ~ dwish(R,k)
+  omega ~ dwish(R,k)
   
   k <- 3
   R[1,1] <- 1.0
@@ -84,8 +84,8 @@ line_data <- list("N" = N,
 # JAGS
 outputmcmcVAR <- jags(model.file = textConnection(modelVAR.string),
                       data = line_data,
-                      parameters.to.save= c("alpha", "cov.matrix", "mu0", "Yp", "ypOut", "LogLik"), 
-                      n.adapt=1000, n.iter=10000, n.chains = 1, n.burnin = 1000)
+                      parameters.to.save= c("A", "sigma", "mu0", "Yp", "ypOut", "LogLik"), 
+                      n.adapt=1000, n.iter=10000, n.chains = 3, n.burnin = 1000)
 ```
 
 ```{r}
@@ -97,40 +97,75 @@ DIC
 ```
 
 ```{r}
+# Get parameters information
+mu0_1   <- cbind(inf = mean(outputmcmcVAR$q2.5$mu0[1]), 
+                 center = mean(outputmcmcVAR$mean$mu0[1]),
+                 sup = mean(outputmcmcVAR$q97.5$mu0[1]))
+mu0_2   <- cbind(inf = mean(outputmcmcVAR$q2.5$mu0[2]), 
+                 center = mean(outputmcmcVAR$mean$mu0[2]),
+                 sup = mean(outputmcmcVAR$q97.5$mu0[2]))
+A11     <- cbind(inf = mean(outputmcmcVAR$q2.5$A[1,1]), 
+                 center = mean(outputmcmcVAR$mean$A[1,1]),
+                 sup = mean(outputmcmcVAR$q97.5$A[1,1]))
+A12     <- cbind(inf = mean(outputmcmcVAR$q2.5$A[1,2]), 
+                 center = mean(outputmcmcVAR$mean$A[1,2]),
+                 sup = mean(outputmcmcVAR$q97.5$A[1,2]))
+A21     <- cbind(inf = mean(outputmcmcVAR$q2.5$A[2,1]), 
+                 center = mean(outputmcmcVAR$mean$A[2,1]),
+                 sup = mean(outputmcmcVAR$q97.5$A[2,1]))
+A22     <- cbind(inf = mean(outputmcmcVAR$q2.5$A[2,2]), 
+                 center = mean(outputmcmcVAR$mean$A[2,2]),
+                 sup = mean(outputmcmcVAR$q97.5$A[2,2]))
+sigma11 <- cbind(inf = mean(outputmcmcVAR$q2.5$sigma[1,1]), 
+                 center = mean(outputmcmcVAR$mean$sigma[1,1]),
+                 sup = mean(outputmcmcVAR$q97.5$sigma[1,1]))
+sigma12 <- cbind(inf = mean(outputmcmcVAR$q2.5$sigma[1,2]), 
+                 center = mean(outputmcmcVAR$mean$sigma[1,2]),
+                 sup = mean(outputmcmcVAR$q97.5$sigma[1,2]))
+sigma22 <- cbind(inf = mean(outputmcmcVAR$q2.5$sigma[2,2]), 
+                 center = mean(outputmcmcVAR$mean$sigma[2,2]),
+                 sup = mean(outputmcmcVAR$q97.5$sigma[2,2]))
+models.parameters <- rbind(mu0_1, mu0_2, A11, A12, A21, A22, sigma11, sigma12, sigma22)
+rownames(models.parameters) <- c("mu0[1]", "mu0[2]", "A[1,1]", "A[1,2]", "A[2,1]", "A[2,2]", 
+                                 "sigma[1,1]", "sigma[1,2]", "sigma[2,2]")
+models.parameters
+```
+
+```{r}
 # Plot 1
 p1 <- mcmc_areas(outputmcmcVAR$samples, pars = c("mu0[1]"),  prob = 0.95)
 p2 <- mcmc_areas(outputmcmcVAR$samples, pars = c("mu0[2]"),  prob = 0.95)
-p3 <- mcmc_areas(outputmcmcVAR$samples, pars = c("alpha[1,1]"),  prob = 0.95)
-p4 <- mcmc_areas(outputmcmcVAR$samples, pars = c("alpha[1,2]"),  prob = 0.95)
-p5 <- mcmc_areas(outputmcmcVAR$samples, pars = c("alpha[2,1]"),  prob = 0.95)
-p6 <- mcmc_areas(outputmcmcVAR$samples, pars = c("alpha[2,2]"),  prob = 0.95)
-p7 <- mcmc_areas(outputmcmcVAR$samples, pars = c("cov.matrix[1,1]"),  prob = 0.95)
-p8 <- mcmc_areas(outputmcmcVAR$samples, pars = c("cov.matrix[2,2]"),  prob = 0.95)
-p9 <- mcmc_areas(outputmcmcVAR$samples, pars = c("cov.matrix[1,2]"),  prob = 0.95)
+p3 <- mcmc_areas(outputmcmcVAR$samples, pars = c("A[1,1]"),  prob = 0.95)
+p4 <- mcmc_areas(outputmcmcVAR$samples, pars = c("A[1,2]"),  prob = 0.95)
+p5 <- mcmc_areas(outputmcmcVAR$samples, pars = c("A[2,1]"),  prob = 0.95)
+p6 <- mcmc_areas(outputmcmcVAR$samples, pars = c("A[2,2]"),  prob = 0.95)
+p7 <- mcmc_areas(outputmcmcVAR$samples, pars = c("sigma[1,1]"),  prob = 0.95)
+p8 <- mcmc_areas(outputmcmcVAR$samples, pars = c("sigma[2,2]"),  prob = 0.95)
+p9 <- mcmc_areas(outputmcmcVAR$samples, pars = c("sigma[1,2]"),  prob = 0.95)
 grid.arrange(p1, p2, p3, p4, p5, p6, p7, p8, p9, ncol=3, nrow=3, top="Posterior distributions")
 
 # Plot 2
 p1 <- mcmc_trace(outputmcmcVAR$samples, pars = c("mu0[1]"))
 p2 <- mcmc_trace(outputmcmcVAR$samples, pars = c("mu0[2]"))
-p3 <- mcmc_trace(outputmcmcVAR$samples, pars = c("alpha[1,1]"))
-p4 <- mcmc_trace(outputmcmcVAR$samples, pars = c("alpha[1,2]"))
-p5 <- mcmc_trace(outputmcmcVAR$samples, pars = c("alpha[2,1]"))
-p6 <- mcmc_trace(outputmcmcVAR$samples, pars = c("alpha[2,2]"))
-p7 <- mcmc_trace(outputmcmcVAR$samples, pars = c("cov.matrix[1,1]"))
-p8 <- mcmc_trace(outputmcmcVAR$samples, pars = c("cov.matrix[2,2]"))
-p9 <- mcmc_trace(outputmcmcVAR$samples, pars = c("cov.matrix[1,2]"))
+p3 <- mcmc_trace(outputmcmcVAR$samples, pars = c("A[1,1]"))
+p4 <- mcmc_trace(outputmcmcVAR$samples, pars = c("A[1,2]"))
+p5 <- mcmc_trace(outputmcmcVAR$samples, pars = c("A[2,1]"))
+p6 <- mcmc_trace(outputmcmcVAR$samples, pars = c("A[2,2]"))
+p7 <- mcmc_trace(outputmcmcVAR$samples, pars = c("sigma[1,1]"))
+p8 <- mcmc_trace(outputmcmcVAR$samples, pars = c("sigma[2,2]"))
+p9 <- mcmc_trace(outputmcmcVAR$samples, pars = c("sigma[1,2]"))
 grid.arrange(p1, p2, p3, p4, p5, p6, p7, p8, p9, ncol=3, nrow=3, top="Trace plots")
 
 # Plot 3
 autocorr.plot(outputmcmcVAR$samples[,c("mu0[1]")],main="mu0[1]")
 autocorr.plot(outputmcmcVAR$samples[,c("mu0[2]")],main="mu0[2]")
-autocorr.plot(outputmcmcVAR$samples[,c("alpha[1,1]")],main="alpha_11")
-autocorr.plot(outputmcmcVAR$samples[,c("alpha[1,2]")],main="alpha_12")
-autocorr.plot(outputmcmcVAR$samples[,c("alpha[2,1]")],main="alpha_21")
-autocorr.plot(outputmcmcVAR$samples[,c("alpha[2,2]")],main="alpha_22")
-autocorr.plot(outputmcmcVAR$samples[,c("cov.matrix[1,1]")],main="cov.matrix_11")
-autocorr.plot(outputmcmcVAR$samples[,c("cov.matrix[2,2]")],main="cov.matrix_22")
-autocorr.plot(outputmcmcVAR$samples[,c("cov.matrix[1,2]")],main="cov.matrix_12")
+autocorr.plot(outputmcmcVAR$samples[,c("A[1,1]")],main="alpha_11")
+autocorr.plot(outputmcmcVAR$samples[,c("A[1,2]")],main="alpha_12")
+autocorr.plot(outputmcmcVAR$samples[,c("A[2,1]")],main="alpha_21")
+autocorr.plot(outputmcmcVAR$samples[,c("A[2,2]")],main="alpha_22")
+autocorr.plot(outputmcmcVAR$samples[,c("sigma[1,1]")],main="cov.matrix_11")
+autocorr.plot(outputmcmcVAR$samples[,c("sigma[2,2]")],main="cov.matrix_22")
+autocorr.plot(outputmcmcVAR$samples[,c("sigma[1,2]")],main="cov.matrix_12")
 ```
 
 ```{r}
@@ -177,20 +212,20 @@ ts.plot(data$GDP_PC1, ylab="y_t", main="VAR function vs True data")
 points(var_fit[,1], type = "l", col = 2, lty = 2)
 points(276:305, prediction$fcst$GDP_PC1[,1], type = "l", col = 'green2', lty = 2)
 
-# Plot posterior of alpha[1,1]
-a11.mcmc.mat=as.matrix(outputmcmcVAR$samples[,c("alpha[1,1]")], iters = FALSE)
+# Plot posterior of A[1,1]
+a11.mcmc.mat=as.matrix(outputmcmcVAR$samples[,c("A[1,1]")], iters = FALSE)
 ya11=kdensity(a11.mcmc.mat)
-plot(ya11,main="Posterior of alpha[1,1]")
-abline(v=outputmcmcVAR$mean$alpha[1,1],col="blue")
+plot(ya11,main="Posterior of A[1,1]")
+abline(v=outputmcmcVAR$mean$A[1,1],col="blue")
 abline(v=coef(var_model)$GDP_PC1[1,1],col="red")
 legend("topright", legend = c("JAGS", "VAR"),
        col = c("blue", "red"), lty = 1)
 
-# Plot posterior of alpha[1,2]
-a12.mcmc.mat=as.matrix(outputmcmcVAR$samples[,c("alpha[1,2]")], iters = FALSE)
+# Plot posterior of A[1,2]
+a12.mcmc.mat=as.matrix(outputmcmcVAR$samples[,c("A[1,2]")], iters = FALSE)
 ya12=kdensity(a12.mcmc.mat)
-plot(ya12,main="Posterior of alpha[1,2]")
-abline(v=outputmcmcVAR$mean$alpha[1,2],col="blue")
+plot(ya12,main="Posterior of A[1,2]")
+abline(v=outputmcmcVAR$mean$A[1,2],col="blue")
 abline(v=coef(var_model)$GDP_PC1[2,1],col="red")
 legend("topright", legend = c("JAGS", "VAR"),
        col = c("blue", "red"), lty = 1)
@@ -241,20 +276,20 @@ ts.plot(data$CPIAUCSL_PC1, ylab="y_t", main="VAR function vs True data")
 points(var_fit[,2], type = "l", col = 2, lty = 2)
 points(276:305, prediction$fcst$CPIAUCSL_PC1[,1], type = "l", col = 'green2', lty = 2)
 
-# Plot posterior of alpha[2,1]
-a21.mcmc.mat=as.matrix(outputmcmcVAR$samples[,c("alpha[2,1]")], iters = FALSE)
+# Plot posterior of A[2,1]
+a21.mcmc.mat=as.matrix(outputmcmcVAR$samples[,c("A[2,1]")], iters = FALSE)
 ya21=kdensity(a21.mcmc.mat)
-plot(ya21,main="Posterior of alpha[2,1]")
-abline(v=outputmcmcVAR$mean$alpha[2,1],col="blue")
+plot(ya21,main="Posterior of A[2,1]")
+abline(v=outputmcmcVAR$mean$A[2,1],col="blue")
 abline(v=coef(var_model)$CPIAUCSL_PC1[1,1],col="red")
 legend("topright", legend = c("JAGS", "VAR"),
        col = c("blue", "red"), lty = 1)
 
-# Plot posterior of alpha[2,2]
-a22.mcmc.mat=as.matrix(outputmcmcVAR$samples[,c("alpha[2,2]")], iters = FALSE)
+# Plot posterior of A[2,2]
+a22.mcmc.mat=as.matrix(outputmcmcVAR$samples[,c("A[2,2]")], iters = FALSE)
 ya22=kdensity(a22.mcmc.mat)
-plot(ya22,main="Posterior of alpha[2,2]")
-abline(v=outputmcmcVAR$mean$alpha[2,2],col="blue")
+plot(ya22,main="Posterior of A[2,2]")
+abline(v=outputmcmcVAR$mean$A[2,2],col="blue")
 abline(v=coef(var_model)$CPIAUCSL_PC1[2,1],col="red")
 legend("topright", legend = c("JAGS", "VAR"),
        col = c("blue", "red"), lty = 1)

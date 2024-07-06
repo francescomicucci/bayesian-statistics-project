@@ -89,3 +89,23 @@ Finally we plotted the in-sample and out-of-sample predictions with credible int
     \label{fig:VAR_second}
 \end{figure}
 In the Appendix it is possible to find a comparison between our model and the VAR function (using a frequentistic approach) to verify the model's correctness.
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|c|}
+        \hline
+        \textbf{Parameter } & \textbf{Posterior Mean } & \textbf{95\% Credible Interval } \\
+        \hline
+        $\mu_{01}$     &  0.66929256 &  (0.27516565, 1.06102229) \\
+        $\mu_{02}$     & -0.13454152 &  (-0.38389818, 0.11090167) \\
+        $a_{11}$     &  0.91055747 &  (0.84673870, 0.97466996) \\
+        $a_{12}$     & -0.03039508 &  (-0.10650041, 0.04742719) \\
+        $a_{21}$     &  0.07867888 &  (0.03824313, 0.11987435) \\
+        $a_{22}$     &  0.88708627 &  (0.84108698, 0.93353337) \\
+        $\Sigma_{11}$ &  2.48031746 &  (2.09784974, 2.94229950) \\
+        $\Sigma_{12}$ &  0.52456983 &  (0.34405208, 0.72777246) \\
+        $\Sigma_{22}$ &  0.91495776 &  (0.77210667, 1.07984048) \\
+        \hline
+    \end{tabular}
+    \caption{Posterior means and 95\% credible intervals for the parameters of the VAR(1) models.}
+    \label{tab:VAR1_posteriors}
+\end{table}
