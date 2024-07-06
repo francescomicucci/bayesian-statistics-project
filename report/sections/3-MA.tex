@@ -1,68 +1,74 @@
 \section{Moving Average Model}
 \label{sec:MA}
-Moving Average (MA) models are a type of model well-suited for univariate time series analysis. Unlike Autoregressive (AR) models, where the target variable depends directly on its past values, MA models rely on past random errors to predict future values.
-Moreover, an important advantage of MA models compared to AR models is that MA models are guaranteed to be stationary. \\
-The general formulation of a moving average model of order $q$ is given by:
+A Moving Average (MA) model is another approach used in univariate time series analysis. Unlike the Autoregressive (AR) model, where the target variable depends on its past values, the MA model relies on past errors. \\
+Formally, a Moving Average model of order $q$ is represented as:
 \begin{equation}
-    y_{t} = \mu_0 + \sum_{i=1}^{q} \theta_i \epsilon_{t-i} + \epsilon_{t}
+    \label{eq:MA}
+    y_{t} = \mu_{0} + \sum^{q}_{i=1} \theta_{i} \epsilon_{t-i} + \epsilon_t
 \end{equation}
-Here, $\mu_0$ represents the mean of the series, $\theta_1, ... , \theta_q$ are the model coefficients, and $\epsilon_t, \epsilon_{t-1}... , \epsilon_{t-q}$ are the error terms. \\
-For our specific case, we implemented the model of order 1 ($q=1$) and order 2 ($q=2$). When $q=1$, the model is:
-\begin{equation}
-    \label{MA_q1}
-    y_{t}=\mu_{0}+\theta \epsilon_{t-1} +\epsilon_t \qquad 
-    \epsilon_t \stackrel{iid}{\sim} \mathcal{N}(0,\sigma^2)
-\end{equation}
-For $q=2$, the model becomes:
-\begin{equation}
-    \label{MA_q2}
-    y_{t}=\mu_{0}+\theta_1 \epsilon_{t-1}+\theta_2 \epsilon_{t-2}+\epsilon_t   \qquad 
-    \epsilon_t \stackrel{iid}{\sim} \mathcal{N}(0,\sigma^2)
-\end{equation}
-In both scenarios, the error terms are assumed to be independently and identically distributed (iid) following a normal distribution with mean 0 and variance $\sigma^2$.
+where $q$ is the number of past errors considered, $\mu_{0}$ is the mean of the series, $\theta_{1}, \theta_{2}, ..., \theta_{q}$ are the model coefficients, and $\epsilon_{t}, \epsilon_{t-1}, ..., \epsilon_{t-q}$ are the error terms. \\
+For our analysis, we implemented the MA model of order 1 (MA(1)) and order 2 (MA(2)).
 
-\section*{MA(1)}
-\label{MA(1)}
-Referring to the formulation in \ref{MA_q1}, the likelihood is expressed as follows:
-$$
-y_t | \mu_0, \theta, \sigma^2, \epsilon_{t-1} \sim \mathcal{N}(\mu_0 + \theta \epsilon_{t-1},\sigma^2)
-$$
-And, the priors are:
+\subsection*{MA(1)}
+The MA(1) model is defined as follows:
 \begin{equation}
+    \label{eq:MA1}
+    y_{t} = \mu_{0} + \theta \epsilon_{t-1} + \epsilon_t
+\end{equation}
+In our case study, we assume that $\epsilon_t$ are independent and identically distributed variables from a normal distribution with mean $0$ and variance $\sigma^2$, i.e., $\epsilon_t \stackrel{iid}{\sim} \mathcal{N}(0,\sigma^2)$, leading to the following likelihood:
+\begin{equation}
+    \label{eq:MA1_likelihood}
+    y_{t}|\mu_{0},\theta,\sigma^2,\epsilon_{t-1} \sim \mathcal{N}(\mu_{0} + \theta \epsilon_{t-1}, \sigma^2)
+\end{equation}
+For the priors, we chose:
+\begin{equation}
+    \label{eq:MA1_priors}
     \begin{split}
         \mu_0 \sim \mathcal{N}(0.0, 10000) \\
         \tau = 1 / \sigma^2 \sim \mathcal{G}(2, 0.1) \\
         \theta \sim \mathcal{U}(-1.0, 1.0)
     \end{split}
 \end{equation}
-As we can notice, these priors have been chosen because they are uninformative. \\
-Now, by running the JAGS code that implements the MA model of order 1 for the GDP and for the inflation, we obtain the following posteriors:
-\begin{figure}[H]
+We selected uninformative priors for all the parameters: $\mu_{0}$, $\sigma^2$, and $\theta$. \\
+Running the JAGS code to implement the MA(1) model for GDP and CPIAUCSL, we obtained the posterior distributions shown in Figure \ref{fig:MA1_posteriors}.
+\begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{images/3-MA/posteriors.png}
-    \caption{The image displays the posterior distributions of the parameters for the MA(1) model. The top line corresponds to the model used for GDP, while the bottom line corresponds to the model used for inflation.}
-    \label{fig:MA_posteriors}
-\end{figure}
-
+    \includegraphics[width=0.8\textwidth]{images/3-MA/posteriors.png}
+    \caption{Posterior distributions of the parameters for the MA(1) models. The top line corresponds to the model used for GDP, while the bottom line corresponds to the model used for CPIAUCSL.}
+    \label{fig:MA1_posteriors}
+\end{figure} \\
+Specifically, we derived the following posterior means and 95\% credible intervals: \\
+% Add the table with the posterior means and credible intervals
+In both the GDP and CPIAUCSL models, the $\theta$ parameter is close to 1. However, using a prior for $\theta$ over a larger range, i.e., $\theta \sim \mathcal{U}(-2.0, 2.0)$, did not significantly change the estimated value of $\theta$. \\
+We also examined the trace plots and autocorrelation plots and found no significant issues. \\
+Finally, plotting the in-sample and out-of-sample predictions with 95\% credible intervals and comparing them with the actual data, we obtained the results shown in Figures \ref{fig:MA1_gdp_prediction} and \ref{fig:MA1_infl_prediction}. As observed, the MA(1) model is not good for out of sample predictions, as it fails to capture the trend of the data and returns a flat line.
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.75\textwidth]{images/3-MA/gdp_prediction.png}
-    \label{fig:MA_first}
+    \caption{In-sample and out-of-sample predictions for the GDP using the MA(1) model.}
+    \label{fig:MA1_gdp_prediction}
 \end{figure}
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.75\textwidth]{images/3-MA/infl_prediction.png}
-    \label{fig:MA_second}
+    \caption{In-sample and out-of-sample predictions for the CPIAUCSL using the MA(1) model.}
+    \label{fig:MA1_infl_prediction}
 \end{figure}
-
+We also compared the model's in-sample predictions and posterior distributions with those obtained from the MA model using the ARIMA function. Detailed comparison results are provided in the Appendix, showing no significant differences between them.
 \subsection*{MA(2)}
-\label{MA(2)}
-Referring to the formulation in \ref{MA_q2}, the likelihood is expressed as follows:
-$$
-y_t | \mu_0, \theta_1, \theta_2, \sigma^2, \epsilon_{t-1} \sim \mathcal{N}(\mu_0 + \theta_1 \epsilon_{t-1} + \theta_2 \epsilon_{t-2},\sigma^2)
-$$
-And, the priors are:
+The MA(2) model is defined as follows:
 \begin{equation}
+    \label{eq:MA2}
+    y_{t} = \mu_{0} + \theta_1 \epsilon_{t-1} + \theta_2 \epsilon_{t-2} + \epsilon_t
+\end{equation}
+In our case study, we assume that $\epsilon_t$ are independent and identically distributed variables from a normal distribution with mean $0$ and variance $\sigma^2$, i.e., $\epsilon_t \stackrel{iid}{\sim} \mathcal{N}(0,\sigma^2)$, leading to the following likelihood:
+\begin{equation}
+    \label{eq:MA2_likelihood}
+    y_{t}|\mu_{0},\theta_1,\theta_2,\sigma^2,\epsilon_{t-1} \sim \mathcal{N}(\mu_{0} + \theta_1 \epsilon_{t-1} + \theta_2 \epsilon_{t-2}, \sigma^2)
+\end{equation}
+For the priors, we chose:
+\begin{equation}
+    \label{eq:MA2_priors}
     \begin{split}
         \mu_0 \sim \mathcal{N}(0.0, 10000) \\
         \tau = 1 / \sigma^2 \sim \mathcal{G}(2, 0.1) \\
@@ -70,21 +76,26 @@ And, the priors are:
         \theta_2 \sim \mathcal{U}(-1.0, 1.0)
     \end{split}
 \end{equation}
-
+We selected uninformative priors for $\mu_{0}$, $\sigma^2$, $\theta_1$, and $\theta_2$. \\
+Running the JAGS code to implement the MA(2) model for GDP and CPIAUCSL, we obtained the posterior distributions shown in Figure \ref{fig:MA2_posteriors}.
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{images/3-MA/posteriors2.png}
-    \caption{The image displays the posterior distributions of the parameters for the MA(2) model. The top line corresponds to the model used for GDP, while the bottom line corresponds to the model used for inflation.}
+    \includegraphics[width=0.8\textwidth]{images/3-MA/posteriors2.png}
+    \caption{Posterior distributions of the parameters for the MA(2) models. The top line corresponds to the model used for GDP, while the bottom line corresponds to the model used for CPIAUCSL.}
     \label{fig:MA2_posteriors}
 \end{figure}
-
+Plotting the in-sample and out-of-sample predictions with 95\% credible intervals and comparing them with the actual data, we obtained the results shown in Figures \ref{fig:MA2_gdp_prediction} and \ref{fig:MA2_infl_prediction}. \\
+As with the MA(1) model, the MA(2) model is not good for out-of-sample predictions, as it fails to capture the trend of the data and returns a flat line.
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.75\textwidth]{images/3-MA/gdp_prediction2.png}
-    \label{fig:MA2_first}
+    \caption{In-sample and out-of-sample predictions for the GDP using the MA(2) model.}
+    \label{fig:MA2_gdp_prediction}
 \end{figure}
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.75\textwidth]{images/3-MA/infl_prediction2.png}
-    \label{fig:MA2_second}
+    \caption{In-sample and out-of-sample predictions for the CPIAUCSL using the MA(2) model.}
+    \label{fig:MA2_infl_prediction}
 \end{figure}
+In the end, we compared the model's in-sample predictions and posterior distributions with those obtained from the MA model using the ARIMA function. Detailed comparison results are provided in the Appendix, showing no significant differences between them.
