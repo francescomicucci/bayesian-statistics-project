@@ -79,7 +79,7 @@ The MA(2) model is defined as follows:
 In our case study, we assume that $\epsilon_t$ are independent and identically distributed variables from a normal distribution with mean $0$ and variance $\sigma^2$, i.e., $\epsilon_t \stackrel{iid}{\sim} \mathcal{N}(0,\sigma^2)$, leading to the following likelihood:
 \begin{equation}
     \label{eq:MA2_likelihood}
-    y_{t}|\mu_{0},\theta_1,\theta_2,\sigma^2,\epsilon_{t-1} \sim \mathcal{N}(\mu_{0} + \theta_1 \epsilon_{t-1} + \theta_2 \epsilon_{t-2}, \sigma^2)
+    y_{t}|\mu_{0},\theta_1,\theta_2,\sigma^2,\epsilon_{t-1},\epsilon_{t-2} \sim \mathcal{N}(\mu_{0} + \theta_1 \epsilon_{t-1} + \theta_2 \epsilon_{t-2}, \sigma^2)
 \end{equation}
 For the priors, we chose:
 \begin{equation}
