@@ -78,12 +78,12 @@ line_data_CPIAUCSL <- list("N" = N,
 outputmcmcARMA_GDP <- jags(model.file = textConnection(modelARMA.string),
                          data = line_data_GDP,
                          parameters.to.save= c("alpha", "theta", "sigma2", "mu0", "Yp", "ypOut", "LogLik"), 
-                         n.adapt=1000, n.iter=10000, n.chains = 1, n.burnin = 1000)
+                         n.adapt=1000, n.iter=10000, n.chains = 3, n.burnin = 1000)
 
 outputmcmcARMA_CPIAUCSL <- jags(model.file = textConnection(modelARMA.string),
                               data = line_data_CPIAUCSL,
                               parameters.to.save= c("alpha", "theta", "sigma2", "mu0", "Yp", "ypOut", "LogLik"), 
-                              n.adapt=1000, n.iter=10000, n.chains = 1, n.burnin = 1000)
+                              n.adapt=1000, n.iter=10000, n.chains = 3, n.burnin = 1000)
 ```
 
 ```{r}
@@ -131,6 +131,39 @@ autocorr.plot(outputmcmcARMA_CPIAUCSL$samples[,c("mu0")],main="mu0 CPIAUCSL")
 autocorr.plot(outputmcmcARMA_CPIAUCSL$samples[,c("sigma2")],main="sigma2 CPIAUCSL")
 autocorr.plot(outputmcmcARMA_CPIAUCSL$samples[,c("alpha")],main="alpha CPIAUCSL")
 autocorr.plot(outputmcmcARMA_CPIAUCSL$samples[,c("theta")],main="theta CPIAUCSL")
+```
+
+```{r}
+# Get parameters information
+mu0_GDP    <- cbind(inf = mean(outputmcmcARMA_GDP$q2.5$mu0), 
+                    center = mean(outputmcmcARMA_GDP$mean$mu0),
+                    sup = mean(outputmcmcARMA_GDP$q97.5$mu0))
+alpha_GDP  <- cbind(inf = mean(outputmcmcARMA_GDP$q2.5$alpha), 
+                    center = mean(outputmcmcARMA_GDP$mean$alpha),
+                    sup = mean(outputmcmcARMA_GDP$q97.5$alpha))
+theta_GDP  <- cbind(inf = mean(outputmcmcARMA_GDP$q2.5$theta), 
+                    center = mean(outputmcmcARMA_GDP$mean$theta),
+                    sup = mean(outputmcmcARMA_GDP$q97.5$theta))
+sigma2_GDP <- cbind(inf = mean(outputmcmcARMA_GDP$q2.5$sigma2), 
+                    center = mean(outputmcmcARMA_GDP$mean$sigma2),
+                    sup = mean(outputmcmcARMA_GDP$q97.5$sigma2))
+mu0_CPIAUCSL    <- cbind(inf = mean(outputmcmcARMA_CPIAUCSL$q2.5$mu0), 
+                         center = mean(outputmcmcARMA_CPIAUCSL$mean$mu0),
+                         sup = mean(outputmcmcARMA_CPIAUCSL$q97.5$mu0))
+alpha_CPIAUCSL  <- cbind(inf = mean(outputmcmcARMA_CPIAUCSL$q2.5$alpha), 
+                         center = mean(outputmcmcARMA_CPIAUCSL$mean$alpha),
+                         sup = mean(outputmcmcARMA_CPIAUCSL$q97.5$alpha))
+theta_CPIAUCSL  <- cbind(inf = mean(outputmcmcARMA_CPIAUCSL$q2.5$theta), 
+                         center = mean(outputmcmcARMA_CPIAUCSL$mean$theta),
+                         sup = mean(outputmcmcARMA_CPIAUCSL$q97.5$theta))
+sigma2_CPIAUCSL <- cbind(inf = mean(outputmcmcARMA_CPIAUCSL$q2.5$sigma2), 
+                         center = mean(outputmcmcARMA_CPIAUCSL$mean$sigma2),
+                         sup = mean(outputmcmcARMA_CPIAUCSL$q97.5$sigma2))
+models.parameters <- rbind(mu0_GDP, alpha_GDP, theta_GDP, sigma2_GDP, 
+                           mu0_CPIAUCSL, alpha_CPIAUCSL, theta_CPIAUCSL, sigma2_CPIAUCSL)
+rownames(models.parameters) <- c("mu0_GDP", "alpha_GDP", "theta_GDP", "sigma2_GDP", 
+                                 "mu0_CPIAUCSL", "alpha_CPIAUCSL", "theta_CPIAUCSL", "sigma2_CPIAUCSL")
+models.parameters
 ```
 
 ```{r}
