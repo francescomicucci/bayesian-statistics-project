@@ -77,12 +77,12 @@ line_data_CPIAUCSL <- list("N" = N,
 outputmcmcMA_GDP <- jags(model.file = textConnection(modelMA.string),
                          data = line_data_GDP,
                          parameters.to.save= c("theta", "sigma2", "eps", "mu0", "Yp", "ypOut", "LogLik"), 
-                         n.adapt=1000, n.iter=10000, n.chains = 1, n.burnin = 1000)
+                         n.adapt=1000, n.iter=10000, n.chains = 3, n.burnin = 1000)
 
 outputmcmcMA_CPIAUCSL <- jags(model.file = textConnection(modelMA.string),
                               data = line_data_CPIAUCSL,
                               parameters.to.save= c("theta", "sigma2", "eps", "mu0", "Yp", "ypOut", "LogLik"), 
-                              n.adapt=1000, n.iter=10000, n.chains = 1, n.burnin = 1000)
+                              n.adapt=1000, n.iter=10000, n.chains = 3, n.burnin = 1000)
 ```
 
 ```{r}
@@ -124,6 +124,32 @@ autocorr.plot(outputmcmcMA_GDP$samples[,c("sigma2")],main="sigma2 GDP")
 autocorr.plot(outputmcmcMA_CPIAUCSL$samples[,c("mu0")],main="mu0 CPIAUCSL")
 autocorr.plot(outputmcmcMA_CPIAUCSL$samples[,c("theta")],main="theta CPIAUCSL")
 autocorr.plot(outputmcmcMA_CPIAUCSL$samples[,c("sigma2")],main="sigma2 CPIAUCSL")
+```
+
+```{r}
+# Get parameters information
+mu0_GDP    <- cbind(inf = mean(outputmcmcMA_GDP$q2.5$mu0), 
+                    center = mean(outputmcmcMA_GDP$mean$mu0),
+                    sup = mean(outputmcmcMA_GDP$q97.5$mu0))
+theta_GDP  <- cbind(inf = mean(outputmcmcMA_GDP$q2.5$theta), 
+                    center = mean(outputmcmcMA_GDP$mean$theta),
+                    sup = mean(outputmcmcMA_GDP$q97.5$theta))
+sigma2_GDP <- cbind(inf = mean(outputmcmcMA_GDP$q2.5$sigma2), 
+                    center = mean(outputmcmcMA_GDP$mean$sigma2),
+                    sup = mean(outputmcmcMA_GDP$q97.5$sigma2))
+mu0_CPIAUCSL    <- cbind(inf = mean(outputmcmcMA_CPIAUCSL$q2.5$mu0), 
+                         center = mean(outputmcmcMA_CPIAUCSL$mean$mu0),
+                         sup = mean(outputmcmcMA_CPIAUCSL$q97.5$mu0))
+theta_CPIAUCSL  <- cbind(inf = mean(outputmcmcMA_CPIAUCSL$q2.5$theta), 
+                         center = mean(outputmcmcMA_CPIAUCSL$mean$theta),
+                         sup = mean(outputmcmcMA_CPIAUCSL$q97.5$theta))
+sigma2_CPIAUCSL <- cbind(inf = mean(outputmcmcMA_CPIAUCSL$q2.5$sigma2), 
+                         center = mean(outputmcmcMA_CPIAUCSL$mean$sigma2),
+                         sup = mean(outputmcmcMA_CPIAUCSL$q97.5$sigma2))
+models.parameters <- rbind(mu0_GDP, theta_GDP, sigma2_GDP, mu0_CPIAUCSL, theta_CPIAUCSL, sigma2_CPIAUCSL)
+rownames(models.parameters) <- c("mu0_GDP", "theta_GDP", "sigma2_GDP", 
+                                 "mu0_CPIAUCSL", "theta_CPIAUCSL", "sigma2_CPIAUCSL")
+models.parameters
 ```
 
 ```{r}
@@ -302,12 +328,12 @@ line_data_CPIAUCSL <- list("N" = N,
 outputmcmcMA_GDP <- jags(model.file = textConnection(modelMA_q2.string),
                          data = line_data_GDP,
                          parameters.to.save= c("theta_1", "theta_2", "sigma2", "eps", "mu0", "Yp", "ypOut", "LogLik"), 
-                         n.adapt=1000, n.iter=10000, n.chains = 1, n.burnin = 1000)
+                         n.adapt=1000, n.iter=10000, n.chains = 3, n.burnin = 1000)
 
 outputmcmcMA_CPIAUCSL <- jags(model.file = textConnection(modelMA_q2.string),
                               data = line_data_CPIAUCSL,
                               parameters.to.save= c("theta_1", "theta_2", "sigma2", "eps", "mu0", "Yp", "ypOut", "LogLik"), 
-                              n.adapt=1000, n.iter=10000, n.chains = 1, n.burnin = 1000)
+                              n.adapt=1000, n.iter=10000, n.chains = 3, n.burnin = 1000)
 ```
 
 ```{r}
@@ -355,6 +381,39 @@ autocorr.plot(outputmcmcMA_CPIAUCSL$samples[,c("mu0")],main="mu0 CPIAUCSL")
 autocorr.plot(outputmcmcMA_CPIAUCSL$samples[,c("sigma2")],main="sigma2 CPIAUCSL")
 autocorr.plot(outputmcmcMA_CPIAUCSL$samples[,c("theta_1")],main="theta1 CPIAUCSL")
 autocorr.plot(outputmcmcMA_CPIAUCSL$samples[,c("theta_2")],main="theta2 CPIAUCSL")
+```
+
+```{r}
+# Get parameters information
+mu0_GDP    <- cbind(inf = mean(outputmcmcMA_GDP$q2.5$mu0), 
+                    center = mean(outputmcmcMA_GDP$mean$mu0),
+                    sup = mean(outputmcmcMA_GDP$q97.5$mu0))
+theta_1_GDP  <- cbind(inf = mean(outputmcmcMA_GDP$q2.5$theta_1), 
+                    center = mean(outputmcmcMA_GDP$mean$theta_1),
+                    sup = mean(outputmcmcMA_GDP$q97.5$theta_1))
+theta_2_GDP  <- cbind(inf = mean(outputmcmcMA_GDP$q2.5$theta_2), 
+                    center = mean(outputmcmcMA_GDP$mean$theta_2),
+                    sup = mean(outputmcmcMA_GDP$q97.5$theta_2))
+sigma2_GDP <- cbind(inf = mean(outputmcmcMA_GDP$q2.5$sigma2), 
+                    center = mean(outputmcmcMA_GDP$mean$sigma2),
+                    sup = mean(outputmcmcMA_GDP$q97.5$sigma2))
+mu0_CPIAUCSL    <- cbind(inf = mean(outputmcmcMA_CPIAUCSL$q2.5$mu0), 
+                         center = mean(outputmcmcMA_CPIAUCSL$mean$mu0),
+                         sup = mean(outputmcmcMA_CPIAUCSL$q97.5$mu0))
+theta_1_CPIAUCSL  <- cbind(inf = mean(outputmcmcMA_CPIAUCSL$q2.5$theta_1), 
+                    center = mean(outputmcmcMA_CPIAUCSL$mean$theta_1),
+                    sup = mean(outputmcmcMA_CPIAUCSL$q97.5$theta_1))
+theta_2_CPIAUCSL  <- cbind(inf = mean(outputmcmcMA_CPIAUCSL$q2.5$theta_2), 
+                    center = mean(outputmcmcMA_CPIAUCSL$mean$theta_2),
+                    sup = mean(outputmcmcMA_CPIAUCSL$q97.5$theta_2))
+sigma2_CPIAUCSL <- cbind(inf = mean(outputmcmcMA_CPIAUCSL$q2.5$sigma2), 
+                         center = mean(outputmcmcMA_CPIAUCSL$mean$sigma2),
+                         sup = mean(outputmcmcMA_CPIAUCSL$q97.5$sigma2))
+models.parameters <- rbind(mu0_GDP, theta_1_GDP, theta_2_GDP, sigma2_GDP, 
+                           mu0_CPIAUCSL, theta_1_CPIAUCSL, theta_2_CPIAUCSL, sigma2_CPIAUCSL)
+rownames(models.parameters) <- c("mu0_GDP", "theta_1_GDP", "theta_2_GDP", "sigma2_GDP", 
+                                 "mu0_CPIAUCSL", "theta_1_CPIAUCSL", "theta_2_CPIAUCSL", "sigma2_CPIAUCSL")
+models.parameters
 ```
 
 ```{r}
