@@ -12,6 +12,7 @@ library(jagsUI)
 library(kdensity)
 library(vars)
 library(loo)
+library(gridExtra)
 ```
 
 ```{r}

@@ -29,15 +29,30 @@ For the priors, we chose:
     \end{split}
 \end{equation}
 We selected these priors to ensure uninformative distributions for $\mu_{0}$ and $\sigma^2$, while for $\alpha$, we used a uniform distribution between -1 and 1 to satisfy the model's stationarity condition, i.e., $|\alpha| < 1$. \\
-Running the JAGS code to implement the AR(1) model for GDP and CPIAUCSL, we obtained the posterior distributions shown in Figure \ref{fig:AR1_posteriors}. \\
+Running the JAGS code to implement the AR(1) model for GDP and CPIAUCSL, we obtained the posterior distributions shown in Figure \ref{fig:AR1_posteriors}, with the corresponding means and 95\% credible intervals reported in Table \ref{tab:AR1_posteriors}. \\
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.8\textwidth]{images/2-AR/posteriors.png}
     \caption{Posterior distributions of the parameters for the AR(1) models. The top line corresponds to the model used for GDP, while the bottom line corresponds to the model used for CPIAUCSL.}
     \label{fig:AR1_posteriors}
 \end{figure}
-Specifically, we derived the following posterior means and 95\% credible intervals: \\
-% Add the table with the posterior means and credible intervals
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|c|c|}
+        \hline
+        \textbf{Model target variable } & \textbf{Parameter } & \textbf{Posterior Mean } & \textbf{95\% Credible Interval } \\
+        \hline
+        GDP      & mu0    & 0.6646012 & (0.269216192, 1.0554382) \\
+        GDP      & alpha  & 0.8946932 & (0.842044515, 0.9481597) \\
+        GDP      & sigma2 & 2.4565718 & (2.080629925, 2.8999602) \\
+        CPIAUCSL & mu0    & 0.1891912 & (0.006510675, 0.3713430) \\
+        CPIAUCSL & alpha  & 0.9411750 & (0.901591825, 0.9812118) \\
+        CPIAUCSL & sigma2 & 0.9510602 & (0.804012999, 1.1263014) \\
+        \hline
+    \end{tabular}
+    \caption{Posterior means and 95\% credible intervals for the parameters of the AR(1) models.}
+    \label{tab:AR1_posteriors}
+\end{table}
 As seen from the posteriors, the $\alpha$ parameter is close to 1 for both GDP and CPIAUCSL. However, when using a prior for $\alpha$ over a larger range, i.e., $\alpha \sim \mathcal{U}(-2.0, 2.0)$, the estimated value of $\alpha$ did not change significantly. \\
 We also examined the trace plots and autocorrelation plots and found no significant issues. \\
 Lastly, we plotted the in-sample and out-of-sample predictions with 95\% credible intervals and compared them with the actual data. The results are shown in Figures \ref{fig:AR1_gdp_prediction} and \ref{fig:AR1_infl_prediction}. As observed, the AR(1) model captures the initial trend of the data. However, the COVID-19 pandemic caused the model to fail in predicting the sharp decrease in GDP and the sharp increase in CPIAUCSL. \\

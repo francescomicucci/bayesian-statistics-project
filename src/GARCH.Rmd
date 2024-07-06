@@ -11,6 +11,7 @@ library(bayesplot)
 library(jagsUI)
 library(rugarch)
 library(loo)
+library(gridExtra)
 ```
 
 ```{r}

@@ -11,6 +11,7 @@ library(bayesplot)
 library(jagsUI)
 library(kdensity)
 library(loo)
+library(gridExtra)
 ```
 
 ```{r}
@@ -70,12 +71,12 @@ line_data_CPIAUCSL <- list("N" = N,
 outputmcmcAR_GDP <- jags(model.file = textConnection(modelAR.string),
                          data = line_data_GDP,
                          parameters.to.save= c("alpha", "sigma2", "mu0", "Yp", "ypOut", "LogLik"), 
-                         n.adapt=1000, n.iter=10000, n.chains = 1, n.burnin = 1000)
+                         n.adapt=1000, n.iter=10000, n.chains = 3, n.burnin = 1000)
 
 outputmcmcAR_CPIAUCSL <- jags(model.file = textConnection(modelAR.string),
                               data = line_data_CPIAUCSL,
                               parameters.to.save= c("alpha", "sigma2", "mu0", "Yp", "ypOut", "LogLik"), 
-                              n.adapt=1000, n.iter=10000, n.chains = 1, n.burnin = 1000)
+                              n.adapt=1000, n.iter=10000, n.chains = 3, n.burnin = 1000)
 ```
 
 ```{r}
@@ -117,6 +118,32 @@ autocorr.plot(outputmcmcAR_GDP$samples[,c("sigma2")],main="sigma2 GDP")
 autocorr.plot(outputmcmcAR_CPIAUCSL$samples[,c("mu0")],main="mu0 CPIAUCSL")
 autocorr.plot(outputmcmcAR_CPIAUCSL$samples[,c("alpha")],main="alpha CPIAUCSL")
 autocorr.plot(outputmcmcAR_CPIAUCSL$samples[,c("sigma2")],main="sigma2 CPIAUCSL")
+```
+
+```{r}
+# Get parameters information
+mu0_GDP    <- cbind(inf = mean(outputmcmcAR_GDP$q2.5$mu0), 
+                    center = mean(outputmcmcAR_GDP$mean$mu0),
+                    sup = mean(outputmcmcAR_GDP$q97.5$mu0))
+alpha_GDP  <- cbind(inf = mean(outputmcmcAR_GDP$q2.5$alpha), 
+                    center = mean(outputmcmcAR_GDP$mean$alpha),
+                    sup = mean(outputmcmcAR_GDP$q97.5$alpha))
+sigma2_GDP <- cbind(inf = mean(outputmcmcAR_GDP$q2.5$sigma2), 
+                    center = mean(outputmcmcAR_GDP$mean$sigma2),
+                    sup = mean(outputmcmcAR_GDP$q97.5$sigma2))
+mu0_CPIAUCSL    <- cbind(inf = mean(outputmcmcAR_CPIAUCSL$q2.5$mu0), 
+                         center = mean(outputmcmcAR_CPIAUCSL$mean$mu0),
+                         sup = mean(outputmcmcAR_CPIAUCSL$q97.5$mu0))
+alpha_CPIAUCSL  <- cbind(inf = mean(outputmcmcAR_CPIAUCSL$q2.5$alpha), 
+                         center = mean(outputmcmcAR_CPIAUCSL$mean$alpha),
+                         sup = mean(outputmcmcAR_CPIAUCSL$q97.5$alpha))
+sigma2_CPIAUCSL <- cbind(inf = mean(outputmcmcAR_CPIAUCSL$q2.5$sigma2), 
+                         center = mean(outputmcmcAR_CPIAUCSL$mean$sigma2),
+                         sup = mean(outputmcmcAR_CPIAUCSL$q97.5$sigma2))
+models.parameters <- rbind(mu0_GDP, alpha_GDP, sigma2_GDP, mu0_CPIAUCSL, alpha_CPIAUCSL, sigma2_CPIAUCSL)
+rownames(models.parameters) <- c("mu0_GDP", "alpha_GDP", "sigma2_GDP", 
+                                 "mu0_CPIAUCSL", "alpha_CPIAUCSL", "sigma2_CPIAUCSL")
+models.parameters
 ```
 
 ```{r}
