@@ -60,14 +60,17 @@ Plotting the in-sample and out-of-sample predictions with 95\% credible interval
 The out-of-sample predictions for GDP and CPIAUCSL effectively capture the initial data trends. Nevertheless, the ARMA(1,1) model fails to anticipate the significant impact of the COVID-19 pandemic, which is completely understandable.
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.75\textwidth]{images/4-ARMA/gdp_prediction.png}
-    \caption{In-sample and out-of-sample predictions for the GDP using the ARMA(1,1) model.}
-    \label{fig:ARMA1,1_gdp_prediction}
-\end{figure}
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.75\textwidth]{images/4-ARMA/infl_prediction.png}
-    \caption{In-sample and out-of-sample predictions for the CPIAUCSL using the ARMA(1,1) model.}
-    \label{fig:ARMA1,1_infl_prediction}
+    \begin{minipage}{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/4-ARMA/gdp_prediction.png}
+        \caption{In-sample and out-of-sample predictions for the GDP using the ARMA(1,1) model.}
+        \label{fig:ARMA1,1_gdp_prediction}
+    \end{minipage}\hfill
+    \begin{minipage}{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/4-ARMA/infl_prediction.png}
+        \caption{In-sample and out-of-sample predictions for the CPIAUCSL using the ARMA(1,1) model.}
+        \label{fig:ARMA1,1_infl_prediction}
+    \end{minipage}
 \end{figure}
 Finally, examining the trace plots and autocorrelation plots, we found no significant issues, and comparing our model with the one obtained using the ARIMA function, we observed that the two models have similar results. Results are provided in the Appendix.

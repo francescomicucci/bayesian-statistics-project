@@ -74,7 +74,7 @@ The priors are chosen to be uninformative. \\
 Using JAGS to implement the VAR(1) model for GDP and CPIAUCSL, we obtained the posterior distributions shown in Figure \ref{fig:VAR1_posteriors}, with the corresponding means and 95\% credible intervals reported in Table \ref{tab:VAR1_posteriors}. \\
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{images/6-VAR/posteriors.png}
+    \includegraphics[width=0.8\textwidth]{images/6-VAR/posteriors.png}
     \caption{Posterior distributions of the parameters for the VAR(1) model.}
     \label{fig:VAR1_posteriors}
 \end{figure}
@@ -102,14 +102,17 @@ Lastly, we plotted the in-sample and out-of-sample predictions with 95\% credibl
 Analyzing the out-of-sample predictions, we observe that in the VAR(1) model, GDP values impact CPIAUCSL, resulting in slightly different predictions compared to the AR(1) model for CPIAUCSL.
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.75\textwidth]{images/6-VAR/gdp_prediction.png}
-    \caption{In-sample and out-of-sample predictions for the GDP using the VAR(1) model.}
-    \label{fig:VAR1_gdp_prediction} 
-\end{figure}
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.75\textwidth]{images/6-VAR/infl_prediction.png}
-    \caption{In-sample and out-of-sample predictions for the CPIAUCSL using the VAR(1) model.}
-    \label{fig:VAR1_infl_prediction}
+    \begin{minipage}{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/6-VAR/gdp_prediction.png}
+        \caption{In-sample and out-of-sample predictions for the GDP using the VAR(1) model.}
+        \label{fig:VAR1_gdp_prediction} 
+    \end{minipage}\hfill
+    \begin{minipage}{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/6-VAR/infl_prediction.png}
+        \caption{In-sample and out-of-sample predictions for the CPIAUCSL using the VAR(1) model.}
+        \label{fig:VAR1_infl_prediction}
+    \end{minipage}
 \end{figure}
 The Appendix contains a comparison between our model and the VAR function (using a frequentist approach) to verify the model's correctness. No significant differences were found. Additionally, the Appendix includes trace plots and autocorrelation plots for the parameters.

@@ -59,15 +59,18 @@ We also examined the trace plots and autocorrelation plots and found no signific
 Finally, plotting the in-sample and out-of-sample predictions with 95\% credible intervals and comparing them with the actual data, we obtained the results shown in Figures \ref{fig:MA1_gdp_prediction} and \ref{fig:MA1_infl_prediction}. As observed, the MA(1) model is not good for out of sample predictions, as it fails to capture the trend of the data and returns a flat line.
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.75\textwidth]{images/3-MA/gdp_prediction.png}
-    \caption{In-sample and out-of-sample predictions for the GDP using the MA(1) model.}
-    \label{fig:MA1_gdp_prediction}
-\end{figure}
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.75\textwidth]{images/3-MA/infl_prediction.png}
-    \caption{In-sample and out-of-sample predictions for the CPIAUCSL using the MA(1) model.}
-    \label{fig:MA1_infl_prediction}
+    \begin{minipage}{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/3-MA/gdp_prediction.png}
+        \caption{In-sample and out-of-sample predictions for the GDP using the MA(1) model.}
+        \label{fig:MA1_gdp_prediction}
+    \end{minipage}\hfill
+    \begin{minipage}{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/3-MA/infl_prediction.png}
+        \caption{In-sample and out-of-sample predictions for the CPIAUCSL using the MA(1) model.}
+        \label{fig:MA1_infl_prediction}
+    \end{minipage}
 \end{figure}
 We also compared the model's in-sample predictions and posterior distributions with those obtained from the MA model using the ARIMA function. Detailed comparison results are provided in the Appendix, showing no significant differences between them.
 \subsection*{MA(2)}
@@ -122,14 +125,17 @@ Plotting the in-sample and out-of-sample predictions with 95\% credible interval
 As with the MA(1) model, the MA(2) model is not good for out-of-sample predictions, as it fails to capture the trend of the data and returns a flat line.
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.75\textwidth]{images/3-MA/gdp_prediction2.png}
-    \caption{In-sample and out-of-sample predictions for the GDP using the MA(2) model.}
-    \label{fig:MA2_gdp_prediction}
-\end{figure}
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.75\textwidth]{images/3-MA/infl_prediction2.png}
-    \caption{In-sample and out-of-sample predictions for the CPIAUCSL using the MA(2) model.}
-    \label{fig:MA2_infl_prediction}
+    \begin{minipage}{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/3-MA/gdp_prediction2.png}
+        \caption{In-sample and out-of-sample predictions for the GDP using the MA(2) model.}
+        \label{fig:MA2_gdp_prediction}
+    \end{minipage}\hfill
+    \begin{minipage}{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/3-MA/infl_prediction2.png}
+        \caption{In-sample and out-of-sample predictions for the CPIAUCSL using the MA(2) model.}
+        \label{fig:MA2_infl_prediction}
+    \end{minipage}
 \end{figure}
 In the end, we compared the model's in-sample predictions and posterior distributions with those obtained from the MA model using the ARIMA function. Detailed comparison results are provided in the Appendix, showing no significant differences between them.
