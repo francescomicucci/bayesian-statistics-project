@@ -1,4 +1,3 @@
-\newpage
 \section{Generalized Autoregressive Conditional Heteroskedasticity Model}
 \label{sec:GARCH}
 The Generalized Autoregressive Conditional Heteroskedasticity (GARCH) model is structured as an ARMA model applied to the variance of the error term, relying on the previous squared error terms and variances. \\
@@ -27,7 +26,7 @@ For the priors, we chose:
     \end{split}
 \end{equation}
 The gamma distribution is used for $a_0, a_1, a_2$ to ensure positive variance values. The normal and uniform distributions for $\mu_{0}$ and $\alpha$, respectively, are chosen for the same reasons as in the AR(1) model discussed in Section \ref{sec:AR}. \\
-Running the JAGS code to implement the AR(1) + GARCH(1,1) model for GDP and CPIAUCSL, we obtained the posterior distributions shown in Figure \ref{fig:GARCH1,1_AR1_posteriors}, with the corresponding means and 95\% credible intervals reported in Table \ref{tab:GARCH1,1_AR1_posteriors}. Trace plots and autocorrelation plots are provided in the Appendix. \\
+Running the JAGS code to implement the AR(1) + GARCH(1,1) model for GDP and CPIAUCSL, we obtained the posterior distributions shown in Figure \ref{fig:GARCH1,1_AR1_posteriors}, with the corresponding means and 95\% credible intervals reported in Table \ref{tab:GARCH1,1_AR1_posteriors}. Trace plots are provided in the Appendix. \\
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{images/5-GARCH/posteriors.png}
@@ -53,7 +52,7 @@ Running the JAGS code to implement the AR(1) + GARCH(1,1) model for GDP and CPIA
     \caption{Posterior means and 95\% credible intervals for the parameters of the AR(1) + GARCH(1,1) models.}
     \label{tab:GARCH1,1_AR1_posteriors}
 \end{table}
-Plotting the in-sample and out-of-sample predictions with 95\% credible intervals and comparing them with the actual data, we obtained the results shown in Figures \ref{fig:GARCH1,1_AR1_gdp_prediction} and \ref{fig:GARCH1,1_AR1_infl_prediction}. The results from the AR(1) + GARCH(1,1) model are not significantly different from those obtained using the AR(1) model, suggesting that the AR(1) model already captures most of the variance in the data. \\
+Plotting the in-sample and out-of-sample predictions with 95\% credible intervals and comparing them with the actual data, we obtained the results shown in Figures \ref{fig:GARCH1,1_AR1_gdp_prediction} and \ref{fig:GARCH1,1_AR1_infl_prediction}. The results from the AR(1) + GARCH(1,1) model are not significantly different from those obtained using the AR(1) model, suggesting that the AR(1) model already captures most of the information present in the data. \\
 \begin{figure}[H]
     \centering
     \begin{minipage}{0.49\textwidth}
@@ -69,4 +68,4 @@ Plotting the in-sample and out-of-sample predictions with 95\% credible interval
         \label{fig:GARCH1,1_AR1_infl_prediction}
     \end{minipage}
 \end{figure}
-Lastly, we compared our model with results from the uGarch library to check for correctness. The detailed comparison results are provided in the Appendix, with no significant differences found. \\
+Lastly, we compared our model with the results obtained from the uGarch library and found no significant differences between the two approaches.
