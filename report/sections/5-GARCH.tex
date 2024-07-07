@@ -52,3 +52,24 @@ Once we assested the validity of the results, we plotted the in-sample and out-o
     \label{fig:GARCH_second}
 \end{figure}
 Finally we compared the model with the results from the uGarch library. The detailed comparison results are provided in the Appendix. 
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|c|c|}
+        \hline
+        \textbf{Model target variable } & \textbf{Parameter } & \textbf{Posterior Mean } & \textbf{95\% Credible Interval } \\
+        \hline
+        GDP      & $\mu_0$  & 0.6607917 & (0.330124347, 1.0149443) \\
+        GDP      & $\alpha$ & 0.8922917 & (0.839581644, 0.9416944) \\
+        GDP      & $a_1$    & 0.2543789 & (0.128699457, 0.4589058) \\
+        GDP      & $a_2$    & 0.3492357 & (0.202666918, 0.5555133) \\
+        GDP      & $a_3$    & 0.5641981 & (0.377027833, 0.7144185) \\
+        CPIAUCSL & $\mu_0$  & 0.1533340 & (0.006694284, 0.3087467) \\
+        CPIAUCSL & $\alpha$ & 0.9485379 & (0.903837995, 0.9896255) \\
+        CPIAUCSL & $a_1$    & 0.1904433 & (0.122120513, 0.2894240) \\
+        CPIAUCSL & $a_2$    & 0.3120365 & (0.179010077, 0.4966238) \\
+        CPIAUCSL & $a_3$    & 0.5232054 & (0.384775889, 0.6435153) \\
+        \hline
+    \end{tabular}
+    \caption{Posterior means and 95\% credible intervals for the parameters of the GARCH(1,1)+ AR(1) models.}
+    \label{tab:GARCH1,1_AR1_posteriors}
+\end{table}

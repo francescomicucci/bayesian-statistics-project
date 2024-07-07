@@ -1,33 +1,33 @@
-\section{Vector Autoregressive model}
+\section{Vector Autoregressive Model}
 \label{sec:VAR}
-Vector Autoregressive (VAR) models are used in time series research to study the dynamic relationships between interacting variables. Additionally, they serve as forecasting tools. \\
-These models extend the single-variable (univariate) Autoregressive model discussed in Chapter 2 to handle multiple time series. The main difference is that VAR models allow for feedback between variables.\\\\
-A basic VAR model describes the evolution of $K$ target variables over time. These variables are collected in a vector $\mathbf{y}_t = (y_{1t}, ..., y_{Kt})$ of length $K$. Each VAR model is characterized by its order, which indicates the number of past time periods the model uses. A lag refers to the value of a variable in a previous time period. Generally, a $p$th-order VAR includes lags from the last $p$ time periods and is denoted as "VAR(p)". It can be written as:
+The Vector Autoregressive (VAR) model extends the single-variable Autoregressive (AR) model discussed in Section \ref{sec:AR} to accommodate multiple time series. VAR models enable the analysis of dynamic relationships between interacting variables by allowing for feedback among them, making these models useful also for forecasting purposes. \\
+Formally, a VAR model of order $p$ (VAR($p$)) for $K$ variables is represented as:
 \begin{equation}
-    \mathbf{y}_t = A_1 \mathbf{y}_{t-1} + A_2 \mathbf{y}_{t-2} + \cdots + A_p \mathbf{y}_{t-p} + \mathbf{\epsilon}_t,
+    \mathbf{y}_t = \bm{\mu}_0 + A_1 \mathbf{y}_{t-1} + A_2 \mathbf{y}_{t-2} + \cdots + A_p \mathbf{y}_{t-p} + \bm{\epsilon}_t
 \end{equation}
 where:
 \begin{itemize}
-    \item \(\mathbf{y}_t\) is a \(k \times 1\) vector of variables at time \(t\),
-    \item \(A_i\) (for \(i = 1, 2, \ldots, p\)) are \(k \times k\) coefficient matrices,
-    \item \(\mathbf{\epsilon}_t\) is a \(k \times 1\) vector of error terms.
+    \item $p$ is the number of past time periods considered.
+    \item $\bm{\mu}_0$ is a $K \times 1$ vector of constants.
+    \item $\mathbf{y}_t$ is a $K \times 1$ vector of variables at time $t$.
+    \item $A_i$ (for $i = 1, 2, \ldots, p$) are $K \times K$ coefficient matrices.
+    \item $\bm{\epsilon}_t$ is a $K \times 1$ vector of error terms at time $t$.
 \end{itemize}
-Assuming \(\mathbf{\epsilon}_t\) is white noise with normal distribution, zero mean and a constant covariance matrix \(\Sigma\), we have:
+For our analysis, we implement a VAR model of order 1 (VAR(1)).
+\subsection*{VAR(1)}
+The VAR(1) model for $K = 2$ is defined as:
 \begin{equation}
-    \mathbf{\epsilon}_t \stackrel{iid} \sim \mathcal{N}(0, \Sigma)
-\end{equation}
-For which concern our case, we implemented the VAR(1) model, resulting in the following formulation:
-\begin{equation}
-    \mathbf{y}_t = A \mathbf{y}_{t-1} + \mathbf{\epsilon}_t,
-\end{equation}
-or, in a more extensive way:
-\begin{equation}
-    \label{VAR_1}
+    \label{eq:VAR1}
     \begin{pmatrix}
-        \ \ \ y_{1t} \\
-        \ \ \ y_{2t}
+        \ \ \ y_{1,t} \\
+        \ \ \ y_{2,t}
     \end{pmatrix}
     =
+    \begin{pmatrix}
+        \ \ \ \mu_{0,1} \\
+        \ \ \ \mu_{0,2}
+    \end{pmatrix}
+    +
     \begin{pmatrix}
         \ \ \ a_{11} & a_{12} \\
         \ \ \ a_{21} & a_{22}
@@ -38,30 +38,31 @@ or, in a more extensive way:
     \end{pmatrix}
     +
     \begin{pmatrix}
-        \ \ \ \epsilon_{1t} \\
-        \ \ \ \epsilon_{2t}
+        \ \ \ \epsilon_{1,t} \\
+        \ \ \ \epsilon_{2,t}
     \end{pmatrix}
 \end{equation}
-where:
-\begin{itemize}
-    \item \(y_{1t}\) is the GDP\_PC1 variable at time t.
-    \item \(y_{2t}\) is the CPIAUCSL\_PC1 variable at time t.
-\end{itemize}
-
-\section*{VAR(1)}
-Given the equation \ref{VAR_1} the likelihood of the VAR model is as follows:
+or more compactly:
 \begin{equation}
-    \mathbf{y}_{t}|\mathbf{\mu}_{0}, A, \Sigma, \mathbf{y}_{t-1} \sim \mathcal{N}_2(\mathbf{\mu}_{0} + A \mathbf{y}_{t-1}, \Sigma)
+    \label{eq:VAR1_compact}
+    \mathbf{y}_t = \bm{\mu}_0 + A \mathbf{y}_{t-1} + \bm{\epsilon}_t
 \end{equation}
-and we selected the following priors:
+Here, \(y_{1,t}\) represents the GDP\_PC1 variable and \(y_{2,t}\) represents the CPIAUCSL\_PC1 variable at time $t$. \\
+Assuming that $\bm{\epsilon}_t$ follows a multivariate normal distribution with $\bm{0}$ mean and covariance matrix $\Sigma$, the likelihood is:
 \begin{equation}
+    \label{eq:VAR1_likelihood}
+    \mathbf{y}_{t}|\bm{\mu}_{0}, A, \Sigma, \mathbf{y}_{t-1} \sim \mathcal{N}_2(\bm{\mu}_{0} + A \mathbf{y}_{t-1}, \Sigma)
+\end{equation}
+For the priors, we chose:
+\begin{equation}
+    \label{eq:VAR1_priors}
     \begin{split}
-        \mu_{0i} \sim \mathcal{N}(0.0, 10000) \quad i = 1, 2\\
-        A_{ij} \sim \mathcal{U}(-1, 1) \quad i,j = 1, 2 \\
+        \mu_{0,i} \sim \mathcal{N}(0.0, 10000) \quad \quad i = 1, 2\\
+        a_{ij} \sim \mathcal{U}(-1, 1) \quad \quad i,j = 1, 2 \\
         \Omega = \Sigma^{-1} \sim Wishart(R, 3)
     \end{split}
 \end{equation}
-where:
+where: 
 \begin{equation}
     R = 
     \begin{pmatrix}
@@ -69,34 +70,22 @@ where:
         \ \ \ 0.5 & 1
     \end{pmatrix}
 \end{equation}
-choosing them to be uninformative ones. \\
-We produced the traceplots and autocorrelation plots to verify the validity of our assumptions and we obtained the following posteriors for the parameters: \\
+The priors are chosen to be uninformative. \\
+Using JAGS to implement the VAR(1) model for GDP and CPIAUCSL, we obtained the posterior distributions shown in Figure \ref{fig:VAR1_posteriors}, with the corresponding means and 95\% credible intervals reported in Table \ref{tab:VAR1_posteriors}. \\
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{images/6-VAR/posteriors.png}
-    \caption{The image displays the posterior distributions of the parameters for the VAR(1) model.}
-    \label{fig:VAR_posteriors}
+    \caption{Posterior distributions of the parameters for the VAR(1) model.}
+    \label{fig:VAR1_posteriors}
 \end{figure}
-Finally we plotted the in-sample and out-of-sample predictions with credible intervals and we compared it with the true data: \\  
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.75\textwidth]{images/6-VAR/gdp_prediction.png}
-    \label{fig:VAR_first}
-\end{figure}
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.75\textwidth]{images/6-VAR/infl_prediction.png}
-    \label{fig:VAR_second}
-\end{figure}
-In the Appendix it is possible to find a comparison between our model and the VAR function (using a frequentistic approach) to verify the model's correctness.
 \begin{table}[H]
     \centering
     \begin{tabular}{|c|c|c|}
         \hline
         \textbf{Parameter } & \textbf{Posterior Mean } & \textbf{95\% Credible Interval } \\
         \hline
-        $\mu_{01}$     &  0.66929256 &  (0.27516565, 1.06102229) \\
-        $\mu_{02}$     & -0.13454152 &  (-0.38389818, 0.11090167) \\
+        $\mu_{0,1}$     &  0.66929256 &  (0.27516565, 1.06102229) \\
+        $\mu_{0,2}$     & -0.13454152 &  (-0.38389818, 0.11090167) \\
         $a_{11}$     &  0.91055747 &  (0.84673870, 0.97466996) \\
         $a_{12}$     & -0.03039508 &  (-0.10650041, 0.04742719) \\
         $a_{21}$     &  0.07867888 &  (0.03824313, 0.11987435) \\
@@ -106,6 +95,21 @@ In the Appendix it is possible to find a comparison between our model and the VA
         $\Sigma_{22}$ &  0.91495776 &  (0.77210667, 1.07984048) \\
         \hline
     \end{tabular}
-    \caption{Posterior means and 95\% credible intervals for the parameters of the VAR(1) models.}
+    \caption{Posterior means and 95\% credible intervals for the parameters of the VAR(1) model.}
     \label{tab:VAR1_posteriors}
 \end{table}
+Lastly, we plotted the in-sample and out-of-sample predictions with 95\% credible intervals and compared them with the actual data. The results are shown in Figures \ref{fig:VAR1_gdp_prediction} and \ref{fig:VAR1_infl_prediction}. \\ 
+Analyzing the out-of-sample predictions, we observe that in the VAR(1) model, GDP values impact CPIAUCSL, resulting in slightly different predictions compared to the AR(1) model for CPIAUCSL.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{images/6-VAR/gdp_prediction.png}
+    \caption{In-sample and out-of-sample predictions for the GDP using the VAR(1) model.}
+    \label{fig:VAR1_gdp_prediction} 
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{images/6-VAR/infl_prediction.png}
+    \caption{In-sample and out-of-sample predictions for the CPIAUCSL using the VAR(1) model.}
+    \label{fig:VAR1_infl_prediction}
+\end{figure}
+The Appendix contains a comparison between our model and the VAR function (using a frequentist approach) to verify the model's correctness. No significant differences were found. Additionally, the Appendix includes trace plots and autocorrelation plots for the parameters.

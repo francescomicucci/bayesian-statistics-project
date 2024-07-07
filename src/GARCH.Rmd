@@ -11,6 +11,7 @@ library(bayesplot)
 library(jagsUI)
 library(rugarch)
 library(loo)
+library(kdensity)
 library(gridExtra)
 ```
 
@@ -85,12 +86,12 @@ line_data_CPIAUCSL <- list("N" = N,
 outputmcmcGARCH_GDP <- jags(model.file = textConnection(modelGARCH.string),
                          data = line_data_GDP,
                          parameters.to.save= c("a", "alpha", "sigma2", "mu0", "Yp", "ypOut", "LogLik"), 
-                         n.adapt=1000, n.iter=10000, n.chains = 1, n.burnin = 1000)
+                         n.adapt=1000, n.iter=10000, n.chains = 3, n.burnin = 1000)
 
 outputmcmcGARCH_CPIAUCSL <- jags(model.file = textConnection(modelGARCH.string),
                               data = line_data_CPIAUCSL,
                               parameters.to.save= c("a", "alpha", "sigma2", "mu0", "Yp", "ypOut", "LogLik"), 
-                              n.adapt=1000, n.iter=10000, n.chains = 1, n.burnin = 1000)
+                              n.adapt=1000, n.iter=10000, n.chains = 3, n.burnin = 1000)
 ```
 
 ```{r}
@@ -104,6 +105,45 @@ WAIC_CPIAUCSL <- waic(outputmcmcGARCH_CPIAUCSL$sims.list$LogLik[,-1])
 DIC_CPIAUCSL  <- outputmcmcGARCH_CPIAUCSL$DIC
 WAIC_CPIAUCSL
 DIC_CPIAUCSL
+```
+
+```{r}
+# Get parameters information
+mu0_GDP   <- cbind(inf = mean(outputmcmcGARCH_GDP$q2.5$mu0), 
+                   center = mean(outputmcmcGARCH_GDP$mean$mu0),
+                   sup = mean(outputmcmcGARCH_GDP$q97.5$mu0))
+alpha_GDP <- cbind(inf = mean(outputmcmcGARCH_GDP$q2.5$alpha), 
+                   center = mean(outputmcmcGARCH_GDP$mean$alpha),
+                   sup = mean(outputmcmcGARCH_GDP$q97.5$alpha))
+a1_GDP    <- cbind(inf = mean(outputmcmcGARCH_GDP$q2.5$a[1]), 
+                   center = mean(outputmcmcGARCH_GDP$mean$a[1]),
+                   sup = mean(outputmcmcGARCH_GDP$q97.5$a[1]))
+a2_GDP    <- cbind(inf = mean(outputmcmcGARCH_GDP$q2.5$a[2]), 
+                   center = mean(outputmcmcGARCH_GDP$mean$a[2]),
+                   sup = mean(outputmcmcGARCH_GDP$q97.5$a[2]))
+a3_GDP    <- cbind(inf = mean(outputmcmcGARCH_GDP$q2.5$a[3]), 
+                   center = mean(outputmcmcGARCH_GDP$mean$a[3]),
+                   sup = mean(outputmcmcGARCH_GDP$q97.5$a[3]))
+mu0_CPIAUCSL   <- cbind(inf = mean(outputmcmcGARCH_CPIAUCSL$q2.5$mu0), 
+                        center = mean(outputmcmcGARCH_CPIAUCSL$mean$mu0),
+                        sup = mean(outputmcmcGARCH_CPIAUCSL$q97.5$mu0))
+alpha_CPIAUCSL <- cbind(inf = mean(outputmcmcGARCH_CPIAUCSL$q2.5$alpha), 
+                        center = mean(outputmcmcGARCH_CPIAUCSL$mean$alpha),
+                        sup = mean(outputmcmcGARCH_CPIAUCSL$q97.5$alpha))
+a1_CPIAUCSL    <- cbind(inf = mean(outputmcmcGARCH_CPIAUCSL$q2.5$a[1]), 
+                        center = mean(outputmcmcGARCH_CPIAUCSL$mean$a[1]),
+                        sup = mean(outputmcmcGARCH_CPIAUCSL$q97.5$a[1]))
+a2_CPIAUCSL    <- cbind(inf = mean(outputmcmcGARCH_CPIAUCSL$q2.5$a[2]), 
+                        center = mean(outputmcmcGARCH_CPIAUCSL$mean$a[2]),
+                        sup = mean(outputmcmcGARCH_CPIAUCSL$q97.5$a[2]))
+a3_CPIAUCSL    <- cbind(inf = mean(outputmcmcGARCH_CPIAUCSL$q2.5$a[3]), 
+                        center = mean(outputmcmcGARCH_CPIAUCSL$mean$a[3]),
+                        sup = mean(outputmcmcGARCH_CPIAUCSL$q97.5$a[3]))
+models.parameters <- rbind(mu0_GDP, alpha_GDP, a1_GDP, a2_GDP, a3_GDP,
+                           mu0_CPIAUCSL, alpha_CPIAUCSL, a1_CPIAUCSL, a2_CPIAUCSL, a3_CPIAUCSL)
+rownames(models.parameters) <- c("mu0_GDP", "alpha_GDP", "a1_GDP", "a2_GDP", "a3_GDP", "mu0_CPIAUCSL", 
+                                 "alpha_CPIAUCSL", "a1_CPIAUCSL", "a2_CPIAUCSL", "a3_CPIAUCSL")
+models.parameters
 ```
 
 ```{r}
