@@ -8,7 +8,7 @@ Formally, the GARCH model of order $(p, q)$ is defined as:
     \sigma^2_t = a_{0} + \sum^{p}_{i=1} a_i \epsilon^2_{t-i} + \sum^{q}_{j=1} a_{j+p} \sigma^2_{t-j}
 \end{equation}
 Here, $p$ is the number of past squared error terms considered, $q$ is the number of past variances considered, $a_0, a_1, ..., a_{p+q}$ are the model parameters, $\epsilon^2_{t-1}, \epsilon^2_{t-2}, ..., \epsilon^2_{t-p}$ are the past squared error terms, and $\sigma^2_{t-1}, \sigma^2_{t-2}, ..., \sigma^2_{t-q}$ are the past variances. \\
-For our analysis, we assumed that the error terms $\epsilon_t$ are independent and identically distributed variables from a normal distribution with mean $0$ and variance $\sigma^2_t$, i.e., $\epsilon_t \stackrel{iid}{\sim} \mathcal{N}(0,\sigma^2_t)$. \\
+For our analysis, we assumed that the error terms $\epsilon_t$ are independent and identically distributed variables from a normal distribution with mean $0$ and variance $\sigma^2_t$, i.e., $\epsilon_t \stackrel{iid}{\sim} \mathcal{N}(0,\sigma^2_t)$.
 \subsection*{AR(1) + GARCH(1,1)}
 We applied the GARCH(1,1) model to the variance of the error term in an AR(1) model, leading to the following likelihood:
 \begin{equation}
@@ -36,10 +36,9 @@ Running the JAGS code to implement the AR(1) + GARCH(1,1) model for GDP and CPIA
 \end{figure}
 \begin{table}[H]
     \centering
-    \begin{tabular}{|c|c|c|c|}
-        \hline
+    \begin{tabular}{c|c|c|c}
         \textbf{Model target variable } & \textbf{Parameter } & \textbf{Posterior Mean } & \textbf{95\% Credible Interval } \\
-        \hline
+        \cline{1-4}
         GDP      & $\mu_0$  & 0.6607917 & (0.330124347, 1.0149443) \\
         GDP      & $\alpha$ & 0.8922917 & (0.839581644, 0.9416944) \\
         GDP      & $a_1$    & 0.2543789 & (0.128699457, 0.4589058) \\
@@ -50,7 +49,6 @@ Running the JAGS code to implement the AR(1) + GARCH(1,1) model for GDP and CPIA
         CPIAUCSL & $a_1$    & 0.1904433 & (0.122120513, 0.2894240) \\
         CPIAUCSL & $a_2$    & 0.3120365 & (0.179010077, 0.4966238) \\
         CPIAUCSL & $a_3$    & 0.5232054 & (0.384775889, 0.6435153) \\
-        \hline
     \end{tabular}
     \caption{Posterior means and 95\% credible intervals for the parameters of the AR(1) + GARCH(1,1) models.}
     \label{tab:GARCH1,1_AR1_posteriors}

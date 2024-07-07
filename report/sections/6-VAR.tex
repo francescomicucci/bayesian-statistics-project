@@ -80,10 +80,9 @@ Using JAGS to implement the VAR(1) model for GDP and CPIAUCSL, we obtained the p
 \end{figure}
 \begin{table}[H]
     \centering
-    \begin{tabular}{|c|c|c|}
-        \hline
+    \begin{tabular}{c|c|c}
         \textbf{Parameter } & \textbf{Posterior Mean } & \textbf{95\% Credible Interval } \\
-        \hline
+        \cline{1-3}
         $\mu_{0,1}$     &  0.66929256 &  (0.27516565, 1.06102229) \\
         $\mu_{0,2}$     & -0.13454152 &  (-0.38389818, 0.11090167) \\
         $a_{11}$     &  0.91055747 &  (0.84673870, 0.97466996) \\
@@ -93,7 +92,6 @@ Using JAGS to implement the VAR(1) model for GDP and CPIAUCSL, we obtained the p
         $\Sigma_{11}$ &  2.48031746 &  (2.09784974, 2.94229950) \\
         $\Sigma_{12}$ &  0.52456983 &  (0.34405208, 0.72777246) \\
         $\Sigma_{22}$ &  0.91495776 &  (0.77210667, 1.07984048) \\
-        \hline
     \end{tabular}
     \caption{Posterior means and 95\% credible intervals for the parameters of the VAR(1) model.}
     \label{tab:VAR1_posteriors}

@@ -38,17 +38,15 @@ Running the JAGS code to implement the MA(1) model for GDP and CPIAUCSL, we obta
 \end{figure}
 \begin{table}[H]
     \centering
-    \begin{tabular}{|c|c|c|c|}
-        \hline
+    \begin{tabular}{c|c|c|c}
         \textbf{Model target variable } & \textbf{Parameter } & \textbf{Posterior Mean } & \textbf{95\% Credible Interval } \\
-        \hline
+        \cline{1-4}
         GDP      & $\mu_0$    & 6.5934423 & (6.1441382, 7.0421211) \\
         GDP      & $\theta$   & 0.9745347 & (0.9419309, 0.9915436) \\
         GDP      & $\sigma^2$ & 3.8669139 & (3.2666059, 4.5663869) \\
         CPIAUCSL & $\mu_0$    & 3.6496595 & (3.2718468, 4.0311333) \\
         CPIAUCSL & $\theta$   & 0.9335022 & (0.8946139, 0.9613808) \\
         CPIAUCSL & $\sigma^2$ & 2.7205353 & (2.3038087, 3.2125894) \\
-        \hline
     \end{tabular}
     \caption{Posterior means and 95\% credible intervals for the parameters of the MA(1) models.}
     \label{tab:MA1_posteriors}
@@ -103,10 +101,9 @@ Running the JAGS code to implement the MA(2) model for GDP and CPIAUCSL, we obta
 \end{figure} 
 \begin{table}[H]
     \centering
-    \begin{tabular}{|c|c|c|c|}
-        \hline
+    \begin{tabular}{c|c|c|c}
         \textbf{Model target variable } & \textbf{Parameter } & \textbf{Posterior Mean } & \textbf{95\% Credible Interval } \\
-        \hline
+        \cline{1-4}
         GDP      & $\mu_0$    & 6.5862752 & (6.0523533, 7.1291252) \\
         GDP      & $\theta_1$ & 1.1489023 & (1.0408063, 1.2447200) \\
         GDP      & $\theta_2$ & 0.5587509 & (0.4698359, 0.6348533) \\
@@ -115,7 +112,6 @@ Running the JAGS code to implement the MA(2) model for GDP and CPIAUCSL, we obta
         CPIAUCSL & $\theta_1$ & 1.3155230 & (1.2142974, 1.4063565) \\
         CPIAUCSL & $\theta_2$ & 0.4365283 & (0.3581476, 0.5111502) \\
         CPIAUCSL & $\sigma^2$ & 1.9356539 & (1.6371395, 2.2893457) \\
-        \hline
     \end{tabular}
     \caption{Posterior means and 95\% credible intervals for the parameters of the MA(2) models.}
     \label{tab:MA2_posteriors}

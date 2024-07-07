@@ -38,17 +38,15 @@ Running the JAGS code to implement the AR(1) model for GDP and CPIAUCSL, we obta
 \end{figure}
 \begin{table}[H]
     \centering
-    \begin{tabular}{|c|c|c|c|}
-        \hline
+    \begin{tabular}{c|c|c|c}
         \textbf{Model target variable } & \textbf{Parameter } & \textbf{Posterior Mean } & \textbf{95\% Credible Interval } \\
-        \hline
+        \cline{1-4}
         GDP      & $\mu_0$    & 0.6646012 & (0.269216192, 1.0554382) \\
         GDP      & $\alpha$   & 0.8946932 & (0.842044515, 0.9481597) \\
         GDP      & $\sigma^2$ & 2.4565718 & (2.080629925, 2.8999602) \\
         CPIAUCSL & $\mu_0$    & 0.1891912 & (0.006510675, 0.3713430) \\
         CPIAUCSL & $\alpha$   & 0.9411750 & (0.901591825, 0.9812118) \\
         CPIAUCSL & $\sigma^2$ & 0.9510602 & (0.804012999, 1.1263014) \\
-        \hline
     \end{tabular}
     \caption{Posterior means and 95\% credible intervals for the parameters of the AR(1) models.}
     \label{tab:AR1_posteriors}

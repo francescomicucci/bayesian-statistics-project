@@ -39,10 +39,9 @@ Running the JAGS code to implement the ARMA(1,1) model for GDP and CPIAUCSL, we 
 \end{figure}
 \begin{table}[H]
     \centering
-    \begin{tabular}{|c|c|c|c|}
-        \hline
+    \begin{tabular}{c|c|c|c}
         \textbf{Model target variable } & \textbf{Parameter } & \textbf{Posterior Mean } & \textbf{95\% Credible Interval } \\
-        \hline
+        \cline{1-4}
         GDP      & $\mu_0$    & 1.1207710 & (0.59421700, 1.6538357) \\
         GDP      & $\alpha$   & 0.8254802 & (0.75268077, 0.8966752) \\
         GDP      & $\theta$   & 0.4952213 & (0.38504175, 0.6024967) \\
@@ -51,7 +50,6 @@ Running the JAGS code to implement the ARMA(1,1) model for GDP and CPIAUCSL, we 
         CPIAUCSL & $\alpha$   & 0.9127231 & (0.86025773, 0.9612327) \\
         CPIAUCSL & $\theta$   & 0.2846962 & (0.14830563, 0.4392942) \\
         CPIAUCSL & $\sigma^2$ & 0.8976673 & (0.75858882, 1.0607612) \\
-        \hline
     \end{tabular}
     \caption{Posterior means and 95\% credible intervals for the parameters of the ARMA(1,1) models.}
     \label{tab:ARMA1,1_posteriors}
