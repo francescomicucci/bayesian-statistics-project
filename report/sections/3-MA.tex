@@ -7,8 +7,7 @@ Formally, a Moving Average model of order $q$ is represented as:
     y_{t} = \mu_{0} + \sum^{q}_{i=1} \theta_{i} \epsilon_{t-i} + \epsilon_t
 \end{equation}
 where $q$ is the number of past errors considered, $\mu_{0}$ is the mean of the series, $\theta_{1}, \theta_{2}, ..., \theta_{q}$ are the model coefficients, and $\epsilon_{t}, \epsilon_{t-1}, ..., \epsilon_{t-q}$ are the error terms. \\
-For our analysis, we implemented the MA model of order 1 (MA(1)) and order 2 (MA(2)).
-
+For our analysis, we first implemented the MA model of order 1 (MA(1)). Then, by examining the autocorrelation plots for the two time series, we noticed a significant correlation at 2 lags. Consequently, we concluded that an MA model of order 2 (MA(2)) would perform better, and we implemented it.
 \subsection*{MA(1)}
 The MA(1) model is defined as follows:
 \begin{equation}

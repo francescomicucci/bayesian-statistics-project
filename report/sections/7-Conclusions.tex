@@ -1,0 +1,30 @@
+\section*{Conclusions}
+\label{sec:Conclusions}
+To conclude, we calculated DIC and WAIC for each model and each target time series. The results are shown in Table \ref{Tab:conclusions}. 
+\begin{table}[h]
+    \centering
+    \begin{tabular}{ c ||  c c || c c}
+        \multicolumn{1}{ c ||}{} & \multicolumn{2}{ c||}{DIC} & \multicolumn{2}{c}{WAIC} \\
+        \cline{1-5}
+        \cline{1-5}
+        Model & GDP & CPIAUCSL & GDP & CPIAUCSL\\ 
+        \cline{1-5}
+        AR(1) & 1029.708 & 769.6079 & 1031.7 & 773.0 \\
+        %\cline{1-5}
+        MA(1) & 1154.302 & 1057.921 & 1154.5 & 1058.6\\  
+        %\cline{1-5}
+        MA(2) & 1074.749 & 965.4048 & 1068.2 & 949.8\\  
+        %\cline{1-5}
+        ARMA(1,1) & 960.1701 & 754.3378 & 962.3 & 759.6\\
+        %\cline{1-5} 
+        GARCH(1,1) & 932.1271 & 714.7022 & 934.5  & 727.5\\
+        %\cline{1-5}
+        \multicolumn{1}{ c ||}{VAR} & \multicolumn{2}{c||}{1755.134} & \multicolumn{2}{c}{1762.2} \\
+        \cline{1-5}
+    \end{tabular}
+    \caption{DIC and WAIC values for each model and each target timeserie.}
+    \label{Tab:conclusions}
+\end{table}
+According to these results, it is evident that the best model to independently fit the two time series is GARCH(1,1), as it has the lowest DIC and WAIC values. The ARMA model also performs well. \\
+It's worth mentioning the MA(2) model, which significantly outperforms the MA(1) model. This result is consistent with the observations made in section \ref{sec:MA} regarding the autocorrelation plots. \\
+The VAR model was not considered in this comparison since it fits the two time series jointly.
