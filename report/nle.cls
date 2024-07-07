@@ -223,14 +223,14 @@
 %
 \newcommand\section{%
   \@startsection{section}{1}{\z@}
-	{-19.5\p@ \@plus -6.5\p@ \@minus -3.25\p@}
-	{6.5\p@ \@plus\z@ \@minus1\p@}
+  {-10\p@ \@plus -5\p@ \@minus -2\p@}
+  {4\p@ \@plus\z@ \@minus1\p@}
 	{\centering\normalsize\bfseries}
 }
 \newcommand\subsection{%
   \@startsection{subsection}{2}{\z@}
-	{-19.5\p@ \@plus -3.25\p@ \@minus -3.25\p@}
-	{6.5\p@ \@plus\z@ \@minus1\p@}
+	{-4\p@ \@plus -3\p@ \@minus -2\p@}
+  {3\p@ \@plus\z@ \@minus1\p@}
 	{\centering\normalsize\bfseries\itshape}
 }
 \newcommand\subsubsection{%
@@ -720,6 +720,11 @@
 \setcounter{dbltopnumber}{2}
 \renewcommand\dbltopfraction{.9}
 \renewcommand\dblfloatpagefraction{.5}
+
+% Adjusting spacing around figures and tables
+\setlength{\intextsep}{2pt plus 1pt minus 1pt} % space above and below in-text figures and tables
+\setlength{\floatsep}{2pt plus 1pt minus 1pt} % space between floats
+\setlength{\textfloatsep}{2pt plus 1pt minus 1pt} % space between floats and text
 
 \long\def\@makecaption#1#2{\vskip 6.5\p@%
   \begingroup

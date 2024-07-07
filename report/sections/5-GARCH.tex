@@ -1,28 +1,23 @@
-\section{GARCH}
+\newpage
+\section{Generalized Autoregressive Conditional Heteroskedasticity Model}
 \label{sec:GARCH}
-The Generalized Autoregressive Conditional Heteroskedasticity (GARCH) model is widely used in finance to analyse timeseries.
-
-The model describes the variance of the current error term as a function of the previous error terms and the previous variances. The general formulationc can be written as:
+The Generalized Autoregressive Conditional Heteroskedasticity (GARCH) model is structured as an ARMA model applied to the variance of the error term, relying on the previous squared error terms and variances. \\
+Formally, the GARCH model of order $(p, q)$ is defined as:
 \begin{equation}
-    \sigma^2_t = a_{0} + \sum^{p}_{i=1}a_1 \epsilon^2_{t-i} + \sum^{q}_{j=1}a_2 \sigma^2_{t-j}
+    \label{eq:GARCH}
+    \sigma^2_t = a_{0} + \sum^{p}_{i=1} a_i \epsilon^2_{t-i} + \sum^{q}_{j=1} a_{j+p} \sigma^2_{t-j}
 \end{equation}
-Here $\sigma^2_t$ is the variance of the error term ad time $t$, $\epsilon^2_{t-i}$ is the squared error term at time $t-i$, $\sigma^2_{t-j}$ is the variance of the error term $j$ timesteps before $t$ and $a_0, a_1, a_2$ are the parameters of the model.
-
-Considering the results obtained with the Autoregressive Model, we opted for an AR(1) for the mean of the timeseries and a GARCH(1,1) model for the variance of the error. The final model can be formalized in the following way:
+Here, $p$ is the number of past squared error terms considered, $q$ is the number of past variances considered, $a_0, a_1, ..., a_{p+q}$ are the model parameters, $\epsilon^2_{t-1}, \epsilon^2_{t-2}, ..., \epsilon^2_{t-p}$ are the past squared error terms, and $\sigma^2_{t-1}, \sigma^2_{t-2}, ..., \sigma^2_{t-q}$ are the past variances. \\
+For our analysis, we assumed that the error terms $\epsilon_t$ are independent and identically distributed variables from a normal distribution with mean $0$ and variance $\sigma^2_t$, i.e., $\epsilon_t \stackrel{iid}{\sim} \mathcal{N}(0,\sigma^2_t)$. \\
+\subsection*{AR(1) + GARCH(1,1)}
+We applied the GARCH(1,1) model to the variance of the error term in an AR(1) model, leading to the following likelihood:
 \begin{equation}
-    \begin{split}
-        y_{t} = \mu_{0} + \epsilon_t + \alpha y_{t-1} \quad \epsilon_t \sim \mathcal{N}(0, \sigma^2_t) \\
-        \sigma^2_t = a_{0} + a_1 \epsilon^2_{t-1} + a_2 \sigma^2_{t-1}
-    \end{split}
+    \label{eq:GARCH1,1_likelihood}
+    y_{t}|\mu_{0},\alpha,y_{t-1},a_0,a_1,a_2,\sigma^2_{t-1} \sim \mathcal{N}(\mu_{0} + \alpha y_{t-1}, a_0 + a_1 \epsilon^2_{t-1} + a_2 \sigma^2_{t-1})
 \end{equation}
-
-\subsection*{GARCH(1,1) + AR(1)}
-The likelihood of the GARCH model can be expressed as:
+For the priors, we chose:
 \begin{equation}
-    y_{t}|\mu_{0},\alpha,y_{t-1},a_0,a_1,a_2,\sigma^2_{t-1}\sim \mathcal{N}(\mu_{0} + \alpha y_{t-1}, a_0 + a_1 \epsilon^2_{t-1} + a_2 \sigma^2_{t-1})
-\end{equation}
-We chose the following priors:
-\begin{equation}
+    \label{eq:GARCH1,1_priors}
     \begin{split}
         \mu_0 \sim \mathcal{N}(0.0, 10000) \\
         \alpha \sim \mathcal{U}(-1.0, 1.0) \\
@@ -31,32 +26,14 @@ We chose the following priors:
         a_2 \sim \mathcal{G}(0.01, 0.01)
     \end{split}
 \end{equation}
-We opted for an uninformative prior for $\mu_{0}$ and a uniform distribution for $\alpha$ to respect the stationary constraint for the AR part. Instead for $a_0, a_1, a_2$ we chose a gamma distribution in order to have a positive prior for the variance.
-Here below are shown the posterior distributions for the parameters, while the traceplots and autocorrelation plots are provided in the Appendix.
+The gamma distribution is used for $a_0, a_1, a_2$ to ensure positive variance values. The normal and uniform distributions for $\mu_{0}$ and $\alpha$, respectively, are chosen for the same reasons as in the AR(1) model discussed in Section \ref{sec:AR}. \\
+Running the JAGS code to implement the AR(1) + GARCH(1,1) model for GDP and CPIAUCSL, we obtained the posterior distributions shown in Figure \ref{fig:GARCH1,1_AR1_posteriors}, with the corresponding means and 95\% credible intervals reported in Table \ref{tab:GARCH1,1_AR1_posteriors}. Trace plots and autocorrelation plots are provided in the Appendix. \\
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{images/5-GARCH/posteriors.png}
-    \caption{The image displays the posterior distributions of the parameters for the GARCH(1,1) model. The top line corresponds to the model used for GDP, while the bottom line corresponds to the model used for inflation.}
-    \label{fig:GARCH_posteriors}
+    \caption{Posterior distributions of the parameters for the AR(1) + GARCH(1,1) models. The top line corresponds to the model used for GDP, while the bottom line corresponds to the model used for CPIAUCSL.}
+    \label{fig:GARCH1,1_AR1_posteriors}
 \end{figure}
-
-Once we assested the validity of the results, we plotted the in-sample and out-of-sample prediction with credible intervals and we compared it with the true data:
-\begin{figure}[H]
-    \centering
-    \begin{minipage}{0.49\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{images/5-GARCH/gdp_prediction.png}
-        \caption{In-sample and out-of-sample predictions for the GDP using the GARCH(1,1) + AR(1) model.}
-        \label{fig:GARCH1,1_AR1_gdp_prediction} 
-    \end{minipage}\hfill
-    \begin{minipage}{0.49\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{images/5-GARCH/infl_prediction.png}
-        \caption{In-sample and out-of-sample predictions for the CPIAUCSL using the GARCH(1,1) + AR(1) model.}
-        \label{fig:GARCH1,1_AR1_infl_prediction}
-    \end{minipage}
-\end{figure}
-Finally we compared the model with the results from the uGarch library. The detailed comparison results are provided in the Appendix. 
 \begin{table}[H]
     \centering
     \begin{tabular}{|c|c|c|c|}
@@ -75,6 +52,23 @@ Finally we compared the model with the results from the uGarch library. The deta
         CPIAUCSL & $a_3$    & 0.5232054 & (0.384775889, 0.6435153) \\
         \hline
     \end{tabular}
-    \caption{Posterior means and 95\% credible intervals for the parameters of the GARCH(1,1)+ AR(1) models.}
+    \caption{Posterior means and 95\% credible intervals for the parameters of the AR(1) + GARCH(1,1) models.}
     \label{tab:GARCH1,1_AR1_posteriors}
 \end{table}
+Plotting the in-sample and out-of-sample predictions with 95\% credible intervals and comparing them with the actual data, we obtained the results shown in Figures \ref{fig:GARCH1,1_AR1_gdp_prediction} and \ref{fig:GARCH1,1_AR1_infl_prediction}. The results from the AR(1) + GARCH(1,1) model are not significantly different from those obtained using the AR(1) model, suggesting that the AR(1) model already captures most of the variance in the data. \\
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/5-GARCH/gdp_prediction.png}
+        \caption{In-sample and out-of-sample predictions for the GDP using the GARCH(1,1) + AR(1) model.}
+        \label{fig:GARCH1,1_AR1_gdp_prediction} 
+    \end{minipage}\hfill
+    \begin{minipage}{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/5-GARCH/infl_prediction.png}
+        \caption{In-sample and out-of-sample predictions for the CPIAUCSL using the GARCH(1,1) + AR(1) model.}
+        \label{fig:GARCH1,1_AR1_infl_prediction}
+    \end{minipage}
+\end{figure}
+Lastly, we compared our model with results from the uGarch library to check for correctness. The detailed comparison results are provided in the Appendix, with no significant differences found. \\
