@@ -197,31 +197,35 @@ ARMA_gdp <- arima(data_subsample$GDP, order = c(1,0,1))
 ARMA_gdp_fit <- data_subsample$GDP - residuals(ARMA_gdp)
 print(ARMA_gdp)
 
-# Plot 1 (JAGS vs ARMA using arima)
-plot(tt, yp, type="p", pch="*", col="blue",)
-points(ARMA_gdp_fit, type = "l", col = "red", lty = 2)
-legend("topright", legend = c("JAGS", "ARIMA"),
-       col = c("blue", "red"), lty = 1)
+# Plot in-sample predictions
+plot(yp, type = "p", col = "green3", main = "ARMA(1,1) Model In-Sample Predictions",
+     ylab = "GDP_PC1", xlab = "t")
+points(as.vector(ARMA_gdp_fit), col = "red3")
+lines(data$GDP_PC1[1:275], col = "blue")
+legend("topright", legend = c("JAGS", "ARIMA", "data"),
+       col = c("green3", "red3", "blue"), lty = 1)
 
 # Plot 2 (Posterior of alpha)
+par(mfrow=c(1,2))
 alpha.mcmc.mat=as.matrix(outputmcmcARMA_GDP$samples[,c("alpha")], iters = FALSE)
 yalpha=kdensity(alpha.mcmc.mat)
-plot(yalpha, main="Posterior of alpha")
+plot(yalpha, main="Posterior of alpha", xlim=c(0.65,1.05))
 abline(v=outputmcmcARMA_GDP$mean$alpha,col="blue")
 abline(v=ARMA_gdp$coef[1],col="red")
 legend("topright", legend = c("JAGS", "ARIMA"),
-       col = c("blue", "red"), lty = 1)
+       col = c("blue", "red"), lty = 1, cex = 0.8)
 
 # Plot 2 (Posterior of theta)
 theta.mcmc.mat=as.matrix(outputmcmcARMA_GDP$samples[,c("theta")], iters = FALSE)
 ytheta=kdensity(theta.mcmc.mat)
-plot(ytheta,main="Posterior of theta")
+plot(ytheta,main="Posterior of theta", xlim=c(0.2, 0.8))
 abline(v=outputmcmcARMA_GDP$mean$theta,col="blue")
 abline(v=ARMA_gdp$coef[2],col="red")
 legend("topright", legend = c("JAGS", "ARIMA"),
-       col = c("blue", "red"), lty = 1)
+       col = c("blue", "red"), lty = 1, cex = 0.8)
 
 # Plot 3 (Prediction ARIMA)
+par(mfrow=c(1,1))
 predict_gdp <- predict(ARMA_gdp, n.ahead=30)
 predict_gdp$pred
 ts.plot(data$GDP_PC, ylab="y_t", main="ARIMA vs True data")
@@ -260,21 +264,23 @@ ARMA_infl <- arima(data_subsample$CPIAUCSL_PC1, order = c(1,0,1))
 ARMA_infl_fit <- data_subsample$CPIAUCSL_PC1 - residuals(ARMA_infl)
 print(ARMA_infl)
 
-# Plot 1 (JAGS vs ARMA using arima)
-plot(tt, yp, type="p", pch="*", col="blue", main="JAGS vs ARIMA",
-     xlab="Time", ylab="y_p")
-points(ARMA_infl_fit, type = "l", col = "red", lty = 2)
-legend("topright", legend = c("JAGS", "ARIMA"),
-       col = c("blue", "red"), lty = 1)
+# Plot in-sample predictions
+plot(yp, type = "p", col = "green3", main = "ARMA(1,1) Model In-Sample Predictions",
+     ylab = "CPIAUCSL_PC1", xlab = "t")
+points(as.vector(ARMA_infl_fit), col = "red3")
+lines(data$CPIAUCSL_PC1[1:275], col = "blue")
+legend("topright", legend = c("JAGS", "ARIMA", "data"),
+       col = c("green3", "red3", "blue"), lty = 1)
 
 # Plot 2 (Posterior of alpha)
+par(mfrow=c(1,2))
 alpha.mcmc.mat=as.matrix(outputmcmcARMA_CPIAUCSL$samples[,c("alpha")], iters = FALSE)
 yalpha=kdensity(alpha.mcmc.mat)
 plot(yalpha, main="Posterior of alpha")
 abline(v=outputmcmcARMA_CPIAUCSL$mean$alpha,col="blue")
 abline(v=ARMA_infl$coef[1],col="red")
 legend("topright", legend = c("JAGS", "ARIMA"),
-       col = c("blue", "red"), lty = 1)
+       col = c("blue", "red"), lty = 1, cex = 0.7)
 
 # Plot 2 (Posterior of theta)
 theta.mcmc.mat=as.matrix(outputmcmcARMA_CPIAUCSL$samples[,c("theta")], iters = FALSE)
@@ -283,9 +289,10 @@ plot(ytheta,main="Posterior of theta")
 abline(v=outputmcmcARMA_CPIAUCSL$mean$theta,col="blue")
 abline(v=ARMA_infl$coef[2],col="red")
 legend("topright", legend = c("JAGS", "ARIMA"),
-       col = c("blue", "red"), lty = 1)
+       col = c("blue", "red"), lty = 1, cex = 0.7)
 
 # Plot 3 (Prediction ARIMA)
+par(mfrow=c(1,1))
 predict_infl <- predict(ARMA_infl, n.ahead=30)
 predict_infl$pred
 ts.plot(data$CPIAUCSL_PC1, ylab="y_t", main="ARIMA vs True data")

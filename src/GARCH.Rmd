@@ -247,13 +247,14 @@ mean((yp - as.vector(in_sample_predictions))^2)
 mean((yp_pred - as.vector(fitted(forecast)))^2)
 
 # Plot posterior of a[1]
+par(mfrow=c(2,2))
 a1.mcmc.mat=as.matrix(outputmcmcGARCH_GDP$samples[,c("a[1]")], iters = FALSE)
 ya1=kdensity(a1.mcmc.mat)
 plot(ya1, main="Posterior of a[1]")
 abline(v=outputmcmcGARCH_GDP$mean$a[1],col="blue")
 abline(v=coef(fit_garch)[3],col="red")
 legend("topright", legend = c("JAGS", "sGARCH"),
-       col = c("blue", "red"), lty = 1)
+       col = c("blue", "red"), lty = 1, cex = 0.5)
 
 # Plot posterior of a[2]
 a2.mcmc.mat=as.matrix(outputmcmcGARCH_GDP$samples[,c("a[2]")], iters = FALSE)
@@ -262,7 +263,7 @@ plot(ya2,main="Posterior of a[2]")
 abline(v=outputmcmcGARCH_GDP$mean$a[2],col="blue")
 abline(v=coef(fit_garch)[4],col="red")
 legend("topright", legend = c("JAGS", "sGARCH"),
-       col = c("blue", "red"), lty = 1)
+       col = c("blue", "red"), lty = 1, cex = 0.5)
 
 # Plot posterior of a[3]
 a3.mcmc.mat=as.matrix(outputmcmcGARCH_GDP$samples[,c("a[3]")], iters = FALSE)
@@ -271,7 +272,7 @@ plot(ya3,main="Posterior of a[3]")
 abline(v=outputmcmcGARCH_GDP$mean$a[3],col="blue")
 abline(v=coef(fit_garch)[5],col="red")
 legend("topright", legend = c("JAGS", "sGARCH"),
-       col = c("blue", "red"), lty = 1)
+       col = c("blue", "red"), lty = 1, cex = 0.5)
 
 # Plot posterior of alpha
 alpha.mcmc.mat=as.matrix(outputmcmcGARCH_GDP$samples[,c("alpha")], iters = FALSE)
@@ -280,7 +281,7 @@ plot(yalpha,main="Posterior of alpha")
 abline(v=outputmcmcGARCH_GDP$mean$alpha,col="blue")
 abline(v=coef(fit_garch)[2],col="red")
 legend("topright", legend = c("JAGS", "sGARCH"),
-       col = c("blue", "red"), lty = 1)
+       col = c("blue", "red"), lty = 1, cex = 0.5)
 ```
 
 ```{r}
@@ -341,13 +342,14 @@ mean((yp - as.vector(in_sample_predictions))^2)
 mean((yp_pred - as.vector(fitted(forecast)))^2)
 
 # Plot posterior of a[1]
+par(mfrow=c(2,2))
 a1.mcmc.mat=as.matrix(outputmcmcGARCH_CPIAUCSL$samples[,c("a[1]")], iters = FALSE)
 ya1=kdensity(a1.mcmc.mat)
 plot(ya1,main="Posterior of a[1]")
 abline(v=outputmcmcGARCH_CPIAUCSL$mean$a[1],col="blue")
 abline(v=coef(fit_garch)[3],col="red")
 legend("topright", legend = c("JAGS", "sGARCH"),
-       col = c("blue", "red"), lty = 1)
+       col = c("blue", "red"), lty = 1, cex = 0.5)
 
 # Plot posterior of a[2]
 a2.mcmc.mat=as.matrix(outputmcmcGARCH_CPIAUCSL$samples[,c("a[2]")], iters = FALSE)
@@ -356,7 +358,7 @@ plot(ya2,main="Posterior of a[2]")
 abline(v=outputmcmcGARCH_CPIAUCSL$mean$a[2],col="blue")
 abline(v=coef(fit_garch)[4],col="red")
 legend("topright", legend = c("JAGS", "sGARCH"),
-       col = c("blue", "red"), lty = 1)
+       col = c("blue", "red"), lty = 1, cex = 0.5)
 
 # Plot posterior of a[3]
 a3.mcmc.mat=as.matrix(outputmcmcGARCH_CPIAUCSL$samples[,c("a[3]")], iters = FALSE)
@@ -365,7 +367,7 @@ plot(ya3,main="Posterior of a[3]")
 abline(v=outputmcmcGARCH_CPIAUCSL$mean$a[3],col="blue")
 abline(v=coef(fit_garch)[5],col="red")
 legend("topright", legend = c("JAGS", "sGARCH"),
-       col = c("blue", "red"), lty = 1)
+       col = c("blue", "red"), lty = 1, cex = 0.5)
 
 # Plot posterior of alpha
 alpha.mcmc.mat=as.matrix(outputmcmcGARCH_CPIAUCSL$samples[,c("alpha")], iters = FALSE)
@@ -374,5 +376,5 @@ plot(yalpha,main="Posterior of alpha")
 abline(v=outputmcmcGARCH_CPIAUCSL$mean$alpha,col="blue")
 abline(v=coef(fit_garch)[2],col="red")
 legend("topright", legend = c("JAGS", "sGARCH"),
-       col = c("blue", "red"), lty = 1)
+       col = c("blue", "red"), lty = 1, cex = 0.5)
 ```

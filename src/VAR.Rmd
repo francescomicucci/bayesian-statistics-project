@@ -199,12 +199,13 @@ var_model <- VAR(data_subsample[,2:3], p=1, type="const")
 var_fit   <- fitted(var_model)
 summary(var_model)
 coef(var_model)
-# Plot 1 (JAGS vs VAR function)
-plot(tt, yp, type="p", pch="*", col="blue", main="JAGS vs VAR function",
-     xlab="Time", ylab="y_p")
-points(var_fit[,1], type = "l", col = "red", lty = 2)
-legend("topright", legend = c("JAGS", "VAR function"),
-       col = c("blue", "red"), lty = 1)
+# Plot in-sample predictions
+plot(yp, type = "p", col = "green3", main = "VAR Model In-Sample Predictions",
+     ylab = "GDP_PC1", xlab = "t")
+points(as.vector(var_fit[,1]), col = "red3")
+lines(data$GDP_PC1[1:275], col = "blue")
+legend("topright", legend = c("JAGS", "VAR", "data"),
+       col = c("green3", "red3", "blue"), lty = 1)
 
 # Plot 2 (Prediction VAR function)
 prediction <- predict(var_model, n.ahead = 30)
@@ -213,13 +214,14 @@ points(var_fit[,1], type = "l", col = 2, lty = 2)
 points(276:305, prediction$fcst$GDP_PC1[,1], type = "l", col = 'green2', lty = 2)
 
 # Plot posterior of A[1,1]
+par(mfrow=c(1,2))
 a11.mcmc.mat=as.matrix(outputmcmcVAR$samples[,c("A[1,1]")], iters = FALSE)
 ya11=kdensity(a11.mcmc.mat)
 plot(ya11,main="Posterior of A[1,1]")
 abline(v=outputmcmcVAR$mean$A[1,1],col="blue")
 abline(v=coef(var_model)$GDP_PC1[1,1],col="red")
 legend("topright", legend = c("JAGS", "VAR"),
-       col = c("blue", "red"), lty = 1)
+       col = c("blue", "red"), lty = 1, cex = 0.7)
 
 # Plot posterior of A[1,2]
 a12.mcmc.mat=as.matrix(outputmcmcVAR$samples[,c("A[1,2]")], iters = FALSE)
@@ -228,7 +230,7 @@ plot(ya12,main="Posterior of A[1,2]")
 abline(v=outputmcmcVAR$mean$A[1,2],col="blue")
 abline(v=coef(var_model)$GDP_PC1[2,1],col="red")
 legend("topright", legend = c("JAGS", "VAR"),
-       col = c("blue", "red"), lty = 1)
+       col = c("blue", "red"), lty = 1, cex = 0.7)
 
 ```
 
@@ -263,12 +265,14 @@ var_model <- VAR(data_subsample[,2:3], p=1, type="const")
 var_fit   <- fitted(var_model)
 summary(var_model)
 
-# Plot 1 (JAGS vs VAR function)
-plot(tt, yp, type="p", pch="*", col="blue", main="JAGS vs VAR function",
-     xlab="Time", ylab="y_p")
-points(var_fit[,2], type = "l", col = "red", lty = 2)
-legend("topright", legend = c("JAGS", "VAR function"),
-       col = c("blue", "red"), lty = 1)
+# Plot in-sample predictions
+plot(yp, type = "p", col = "green3", main = "VAR Model In-Sample Predictions",
+     ylab = "CPIAUCSL_PC1", xlab = "t")
+points(as.vector(var_fit[,2]), col = "red3")
+lines(data$CPIAUCSL_PC1[1:275], col = "blue")
+legend("topright", legend = c("JAGS", "VAR", "data"),
+       col = c("green3", "red3", "blue"), lty = 1)
+
 
 # Plot 2 (Prediction VAR function)
 prediction <- predict(var_model, n.ahead = 30)
@@ -277,13 +281,14 @@ points(var_fit[,2], type = "l", col = 2, lty = 2)
 points(276:305, prediction$fcst$CPIAUCSL_PC1[,1], type = "l", col = 'green2', lty = 2)
 
 # Plot posterior of A[2,1]
+par(mfrow=c(1,2))
 a21.mcmc.mat=as.matrix(outputmcmcVAR$samples[,c("A[2,1]")], iters = FALSE)
 ya21=kdensity(a21.mcmc.mat)
 plot(ya21,main="Posterior of A[2,1]")
 abline(v=outputmcmcVAR$mean$A[2,1],col="blue")
 abline(v=coef(var_model)$CPIAUCSL_PC1[1,1],col="red")
 legend("topright", legend = c("JAGS", "VAR"),
-       col = c("blue", "red"), lty = 1)
+       col = c("blue", "red"), lty = 1, cex = 0.7)
 
 # Plot posterior of A[2,2]
 a22.mcmc.mat=as.matrix(outputmcmcVAR$samples[,c("A[2,2]")], iters = FALSE)
@@ -292,5 +297,5 @@ plot(ya22,main="Posterior of A[2,2]")
 abline(v=outputmcmcVAR$mean$A[2,2],col="blue")
 abline(v=coef(var_model)$CPIAUCSL_PC1[2,1],col="red")
 legend("topright", legend = c("JAGS", "VAR"),
-       col = c("blue", "red"), lty = 1)
+       col = c("blue", "red"), lty = 1, cex = 0.7)
 ```

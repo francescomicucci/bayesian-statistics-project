@@ -177,12 +177,13 @@ AR_gdp     <- arima(data_subsample$GDP_PC1, order = c(1,0,0))
 AR_gdp_fit <- data_subsample$GDP_PC1 - residuals(AR_gdp)
 print(AR_gdp)
 
-# Plot 1 (JAGS vs AR using arima)
-plot(tt, yp, type="p", pch="*", col="blue", main="JAGS vs ARIMA",
-     xlab="Time", ylab="y_p")
-points(AR_gdp_fit, type = "l", col = "red", lty = 2)
-legend("topright", legend = c("JAGS", "ARIMA"),
-       col = c("blue", "red"), lty = 1)
+# Plot in-sample predictions
+plot(yp, type = "p", col = "green3", main = "AR Model In-Sample Predictions",
+     ylab = "GDP_PC1", xlab = "t")
+points(as.vector(AR_gdp_fit), col = "red3")
+lines(data$GDP_PC1[1:275], col = "blue")
+legend("topright", legend = c("JAGS", "ARIMA", "data"),
+       col = c("green3", "red3", "blue"), lty = 1)
 
 # Plot 2 (Posterior of alpha)
 alpha.mcmc.mat=as.matrix(outputmcmcAR_GDP$samples[,c("alpha")], iters = FALSE)
@@ -232,12 +233,13 @@ AR_infl     <- arima(data_subsample$CPIAUCSL_PC1, order = c(1,0,0))
 AR_infl_fit <- data_subsample$CPIAUCSL_PC1 - residuals(AR_infl)
 print(AR_infl)
 
-# Plot 1 (JAGS vs AR using arima)
-plot(tt, yp, type="p", pch="*", col="blue", main="JAGS vs ARIMA",
-     xlab="Time", ylab="y_p")
-points(AR_infl_fit, type = "l", col = "red", lty = 2)
-legend("topright", legend = c("JAGS", "ARIMA"),
-       col = c("blue", "red"), lty = 1)
+# Plot in-sample predictions
+plot(yp, type = "p", col = "green3", main = "AR Model In-Sample Predictions",
+     ylab = "CPIAUCSL_PC1", xlab = "t")
+points(as.vector(AR_infl_fit), col = "red3")
+lines(data$CPIAUCSL_PC1[1:275], col = "blue")
+legend("topright", legend = c("JAGS", "ARIMA", "data"),
+       col = c("green3", "red3", "blue"), lty = 1)
 
 # Plot 2 (Posterior of alpha)
 alpha.mcmc.mat=as.matrix(outputmcmcAR_CPIAUCSL$samples[,c("alpha")], iters = FALSE)

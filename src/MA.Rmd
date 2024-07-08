@@ -184,12 +184,13 @@ MA_gdp <- arima(data_subsample$GDP_PC1, order = c(0,0,1))
 MA_gdp_fit <- data_subsample$GDP_PC1 - residuals(MA_gdp)
 print(MA_gdp)
 
-# Plot 1 (JAGS vs AR using arima)
-plot(tt, yp, type="p", pch="*", col="blue", main="JAGS vs ARIMA",
-     xlab="Time", ylab="y_p")
-points(MA_gdp_fit, type = "l", col = "red", lty = 2)
-legend("topright", legend = c("JAGS", "ARIMA"),
-       col = c("blue", "red"), lty = 1)
+# Plot in-sample predictions
+plot(yp, type = "p", col = "green3", main = "MA(1) Model In-Sample Predictions",
+     ylab = "GDP_PC1", xlab = "t")
+points(as.vector(MA_gdp_fit), col = "red3")
+lines(data$GDP_PC1[1:275], col = "blue")
+legend("topright", legend = c("JAGS", "ARIMA", "data"),
+       col = c("green3", "red3", "blue"), lty = 1)
 
 # Plot 2 (Posterior of theta)
 theta.mcmc.mat=as.matrix(outputmcmcMA_GDP$samples[,c("theta")], iters = FALSE)
@@ -241,12 +242,13 @@ MA_infl <- arima(data_subsample$CPIAUCSL_PC1, order = c(0,0,1))
 MA_infl_fit <- data_subsample$CPIAUCSL_PC1 - residuals(MA_infl)
 print(MA_infl)
 
-# Plot 1 (JAGS vs AR using arima)
-plot(tt, yp, type="p", pch="*", col="blue", main="JAGS vs ARIMA",
-     xlab="Time", ylab="y_p")
-points(MA_infl_fit, type = "l", col = "red", lty = 2)
-legend("topright", legend = c("JAGS", "ARIMA"),
-       col = c("blue", "red"), lty = 1)
+# Plot in-sample predictions
+plot(yp, type = "p", col = "green3", main = "MA(1) Model In-Sample Predictions",
+     ylab = "CPIAUCSL_PC1", xlab = "t")
+points(as.vector(MA_infl_fit), col = "red3")
+lines(data$CPIAUCSL_PC1[1:275], col = "blue")
+legend("topright", legend = c("JAGS", "ARIMA", "data"),
+       col = c("green3", "red3", "blue"), lty = 1)
 
 # Plot 2 (Posterior of theta)
 theta.mcmc.mat=as.matrix(outputmcmcMA_CPIAUCSL$samples[,c("theta")], iters = FALSE)
@@ -448,31 +450,34 @@ MA_gdp_q2 <- arima(data_subsample$GDP_PC1, order = c(0,0,2))
 MA_gdp_q2_fit <- data_subsample$GDP_PC1 - residuals(MA_gdp_q2)
 print(MA_gdp_q2)
 
-# Plot 1 (JAGS vs MA(2) using arima)
-plot(tt, yp, type="p", pch="*", col="blue", main="JAGS vs ARIMA",
-     xlab="Time", ylab="y_p")
-points(MA_gdp_q2_fit, type = "l", col = "red", lty = 2)
-legend("topright", legend = c("JAGS", "ARIMA"),
-       col = c("blue", "red"), lty = 1)
+# Plot in-sample predictions
+plot(yp, type = "p", col = "green3", main = "MA(2) Model In-Sample Predictions",
+     ylab = "GDP_PC1", xlab = "t")
+points(as.vector(MA_gdp_fit), col = "red3")
+lines(data$GDP_PC1[1:275], col = "blue")
+legend("topright", legend = c("JAGS", "ARIMA", "data"),
+       col = c("green3", "red3", "blue"), lty = 1)
 
 # Plot 2 (Posterior of theta 1)
+par(mfrow=c(1,2))
 theta.mcmc.mat=as.matrix(outputmcmcMA_GDP$samples[,c("theta_1")], iters = FALSE)
 ytheta=kdensity(theta.mcmc.mat)
-plot(ytheta,main="Posterior of theta 1")
+plot(ytheta,main="Posterior of theta 1", xlim=c(0.8,1.5))
 abline(v=outputmcmcMA_GDP$mean$theta_1,col="blue")
 abline(v=MA_gdp_q2$coef[1],col="red")
 legend("topright", legend = c("JAGS", "ARIMA"),
-       col = c("blue", "red"), lty = 1)
+       col = c("blue", "red"), lty = 1, cex=0.7)
 
 # Plot 3 (Posterior of theta 2)
 theta.mcmc.mat=as.matrix(outputmcmcMA_GDP$samples[,c("theta_2")], iters = FALSE)
 ytheta=kdensity(theta.mcmc.mat)
-plot(ytheta,main="Posterior of theta 2")
+plot(ytheta,main="Posterior of theta 2", xlim=c(0.3, 0.8))
 abline(v=outputmcmcMA_GDP$mean$theta_2,col="blue")
 abline(v=MA_gdp_q2$coef[2],col="red")
 legend("topright", legend = c("JAGS", "ARIMA"),
-       col = c("blue", "red"), lty = 1)
+       col = c("blue", "red"), lty = 1, cex=0.7)
 
+par(mfrow=c(1,1))
 # Plot 4 (Prediction ARIMA)
 predict_gdp <- predict(MA_gdp_q2, n.ahead=30)
 predict_gdp$pred
@@ -513,31 +518,34 @@ MA_infl_q2 <- arima(data_subsample$CPIAUCSL_PC1, order = c(0,0,2))
 MA_infl_q2_fit <- data_subsample$CPIAUCSL_PC1 - residuals(MA_infl_q2)
 print(MA_infl_q2)
 
-# Plot 1 (JAGS vs MA(2) using arima)
-plot(tt, yp, type="p", pch="*", col="blue", main="JAGS vs ARIMA",
-     xlab="Time", ylab="y_p")
-points(MA_infl_q2_fit, type = "l", col = "red", lty = 2)
-legend("topright", legend = c("JAGS", "ARIMA"),
-       col = c("blue", "red"), lty = 1)
+# Plot in-sample predictions
+plot(yp, type = "p", col = "green3", main = "MA(2) Model In-Sample Predictions",
+     ylab = "CPIAUCSL_PC1", xlab = "t")
+points(as.vector(MA_infl_fit), col = "red3")
+lines(data$CPIAUCSL_PC1[1:275], col = "blue")
+legend("topright", legend = c("JAGS", "ARIMA", "data"),
+       col = c("green3", "red3", "blue"), lty = 1)
 
+par(mfrow=c(1,2))
 # Plot 2 (Posterior of theta 1)
 theta.mcmc.mat=as.matrix(outputmcmcMA_CPIAUCSL$samples[,c("theta_1")], iters = FALSE)
 ytheta=kdensity(theta.mcmc.mat)
-plot(ytheta,main="Posterior of theta 1")
+plot(ytheta,main="Posterior of theta 1", xlim=c(1,1.7))
 abline(v=outputmcmcMA_CPIAUCSL$mean$theta_1,col="blue")
 abline(v=MA_infl_q2$coef[1],col="red")
 legend("topright", legend = c("JAGS", "ARIMA"),
-       col = c("blue", "red"), lty = 1)
+       col = c("blue", "red"), lty = 1, cex=0.7)
 
 # Plot 3 (Posterior of theta 2)
 theta.mcmc.mat=as.matrix(outputmcmcMA_CPIAUCSL$samples[,c("theta_2")], iters = FALSE)
 ytheta=kdensity(theta.mcmc.mat)
-plot(ytheta,main="Posterior of theta 2")
+plot(ytheta,main="Posterior of theta 2", xlim=c(0.2,0.7))
 abline(v=outputmcmcMA_CPIAUCSL$mean$theta_2,col="blue")
 abline(v=MA_infl_q2$coef[2],col="red")
 legend("topright", legend = c("JAGS", "ARIMA"),
-       col = c("blue", "red"), lty = 1)
+       col = c("blue", "red"), lty = 1, cex=0.7)
 
+par(mfrow=c(1,1))
 # Plot 4 (Prediction ARIMA)
 predict_infl <- predict(MA_infl_q2, n.ahead=30)
 predict_infl$pred
