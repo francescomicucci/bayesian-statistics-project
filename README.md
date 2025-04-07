@@ -34,7 +34,6 @@ The data fed into JAGS consisted of only the first 90% of each time series. The 
     <li> <b> 'assignment/' </b> - Contains the PDF with the possible projects and the project delivery details. </li>
     <li> <b> 'dataset/' </b> - Contains the data of the two time series.</li>
     <li> <b> 'output/' </b> - Contains the delivered report and the presentation prepared for presenting the results. </li>
-    <li> <b> 'report/' </b> - LaTeX code for a detailed report of the work performed. </li>
     <li> <b> 'src/' </b> - Source code for data analysis, model fitting, and evaluation. </li>
 </ul>
 
